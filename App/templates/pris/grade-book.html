@@ -1,0 +1,50 @@
+{% extends 'pris/base.html' %}
+{% load static %}
+{% block main %}
+<!-- Form grid Start -->
+<div class="clearfix">
+	<div class="pull-right">
+		<div class="pd-20 card-box mb-30">
+			<select class="selectpicker form-control  pd-20" data-style="btn-outline-primary" data-size="5"
+				name="myclass" id="myclass">
+				{% for grade_level in grade_levels %}
+				<optgroup label="{{grade_level}}" data-max-options="2">
+					{% if grade_level %}
+					{% for class in grade_level.myclass_set.all %}
+					<option value="{{class}}">{{class}}
+					</option>
+					{% endfor %}
+					{% endif %}
+				</optgroup>
+				{% endfor %}
+			</select>
+		</div>
+	</div>
+</div>
+
+<div id="main">
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script>
+	$( function () {
+		$( "#myclass" ).change( function () {
+			var url = "{% url 'load-class-exam-report' %}"  // get the url of the `load_cities` view
+			var myclass = $( this ).val();  // get the selected country ID from the HTML input
+
+			$.ajax( {                       // initialize an AJAX request
+				url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+				data: {
+					'myclass': myclass       // add the country id to the GET parameters
+				},
+				success: function ( data ) {   // `data` is the return of the `load_cities` view function
+					$( "#main" ).html( data );	// replace the contents of the city input with the data that came from the server
+				}
+			} );
+		} ).change();
+	} );
+</script>
+
+
+{% endblock %}

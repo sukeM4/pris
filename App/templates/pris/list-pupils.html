@@ -1,0 +1,86 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}
+{% block main %}
+
+
+
+<div class="mb-30 card-box">
+	<div class="clearfix">
+		<div class="pull-left">
+			<h5 class="h4 text-blue mb-20 pd-20">Pupils</h5>
+		</div>
+		{% if user.is_superuser or user.is_it %}
+		<div class="pull-right">
+			<a class="btn btn-primary m-3 " href="{% url 'register-pupil' %}">
+				<i class="dw dw-add-user"></i> add pupil
+			</a>
+		</div>
+		{% endif %}
+	</div>
+
+
+	<!-- multiple select row Datatable start -->
+	<table class="data-table table hover nowrap">
+		<thead>
+			<tr>
+				<th class="datatable-nosort">Dp</th>
+				<th class="datatable-nosort">ID</th>
+				<th class="datatable-nosort">Name</th>
+				<th>Class</th>
+				<th>Age</th>
+				<th class="datatable-nosort">Action</th>
+
+			</tr>
+		</thead>
+		<tbody>
+			{% for pupil in pupils %}
+			<tr>
+				<td class="table-plus">
+					<img class="rounded-circle"
+						src="{% if pupil.user.photo %} {{pupil.user.photo.url}} {% else %} {% static 'pris\vendors\images\avatar.png' %} {% endif %}"
+						width="40" height="40" alt="">
+				</td>
+				<td>{{pupil}}</td>
+				<td class="text-uppercase">{{pupil.user.get_fullname|upper}} </td>
+				<td>{{pupil.myclass}}</td>
+				<td><span
+						class="badge {% cycle 'badge-primary' 'badge-secondary' 'badge-success' 'badge-danger' 'badge-warning'  %} ">{{pupil.user.birth_date|timesince}}</span>
+				</td>
+				<td><a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" role="button"
+						href="{% url 'profile' pupil.user.username %}">
+						<i class="dw dw-more"></i>
+					</a></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+
+<!-- masuke edit for clickable row -->
+<script>
+	jQuery( document ).ready( function ( $ ) {
+		$( ".clickable-row" ).click( function () {
+			window.location = $( this ).data( "href" );
+		} );
+	} );
+</script>
+{% endblock %}

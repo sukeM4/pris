@@ -1,0 +1,261 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}{% load humanize %}
+{% block styles %}
+
+<style>
+	.card-box table tr {
+		border: 1px solid #ecf0f4;
+	}
+
+	.custom-select2 {
+		height: 10px;
+	}
+
+</style>
+{% endblock %}
+{% block main %}
+<!-- Simple Datatable start -->
+<div class="card-box mb-30">
+	<div class="pd-20">
+		<h4 class="text-blue h4 text-capitalize">{{journal_type|unslugify}}</h4>
+	</div>
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="table hover nowrap">
+				<thead>
+					<tr>
+						<th>
+							<div class="dt-checkbox">
+								<input type="checkbox" id="check-all">
+								<span class="dt-checkbox-label"></span>
+							</div>
+						</th>
+						<th>Date</th>
+						<th>Invoice No.</th>
+						<th>Customer</th>
+						<th>Description</th>
+						<th>Amount</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<form action="" id="upper-form" method="post">{% csrf_token %}
+					<tbody>
+						{% for i in inv %}
+						<tr>
+							<td>
+								<!-- <div class="custom-control custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="post{{i.pk}}"
+										name="post{{i.pk}}">
+									<label class="custom-control-label" for="post{{i.pk}}"></label>
+								</div> -->
+								<div class="dt-checkbox">
+									<input type="checkbox" id="post{{i.pk}}" name="post{{i.pk}}">
+									<span class="dt-checkbox-label"></span>
+								</div>
+							</td>
+							<td class="table-plus">{{i.date}}</td>
+							<td>{{i.doc_no}}</td>
+							<td>{{i.acc_no.name}}</td>
+							<td>{{i.description}}</td>
+							<td>{{i.amount| intcomma }}</td>
+							<td>
+								<div class="dropdown">
+									<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#"
+										role="button" data-toggle="dropdown">
+										<i class="dw dw-more"></i>
+									</a>
+									<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+										<a class="dropdown-item" href="#" data-toggle="modal"
+											data-target="#edit-transaction-modal-{{i.pk}}" type="button"><i
+												class="dw dw-edit2"></i> Edit</a>
+										<a class="dropdown-item" href="#" data-toggle="modal"
+											data-target="#confirmation-modal-{{i.pk}}" type="button"><i
+												class="dw dw-delete-3"></i> Delete</a>
+									</div>
+								</div>
+							</td>
+						</tr>
+
+						{% endfor %}
+					</tbody>
+				</form>
+				<form action="" method="post" id="lower-form">{% csrf_token %} <input type="text" id="usernames"
+						name="usernames" hidden>
+					<tfoot>
+						<tr class="d-none d-sm-table-row">
+							<td></td>
+							<td colspan="2">
+								<div class="form-group">
+									<input class=" d-block date-picker myform-control " name="date"
+										placeholder="Choose Date " type="text" value="{% now 'j F Y' %}">
+								</div>
+							</td>
+							<td colspan="2">
+								<div class="form-group">
+									<select class="select myform-control myform-control-sm" name="description">
+										<option value="tuition fee">Tuition Fee</option>
+										<option value="accomodation fee">Accomodation Fee</option>
+									</select>
+								</div>
+							</td>
+							<td>
+								<div class="form-group">
+									<input type="number" name="amount" class="myform-control myform-control-sm"
+										placeholder="amount" required autocomplete="off">
+								</div>
+							</td>
+							<td>
+								<div class="form-group">
+									<a href="javascript:;" data-toggle="modal" data-target="#invoice-modal"
+										class="btn btn-primary btn-sm">
+										<i class="dw dw-add"></i>
+									</a>
+								</div>
+							</td>
+						</tr>
+
+					</tfoot>
+				</form>
+			</table>
+
+		</div>
+
+
+		<div class="row">
+			<div class="col text-center">
+				<button type="submit" class="btn  btn-outline-primary"
+					name="to-cashbook" id="post-btn">Post</button>
+			</div>
+		</div>
+		</form>
+	</div>
+	<div class="modal fade bs-example-modal-lg" id="invoice-modal" tabindex="-1" role="dialog"
+		aria-labelledby="myLargeModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-header">
+
+					<!-- <div class="modal-title"> -->
+					<div class="dt-checkbox pt-1">
+						<input type="checkbox" id="pupil-select" name="pupil-select">
+						<span class="dt-checkbox-label"></span>
+					</div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+					<span class="h4">Select All</span>
+					<!-- </div> -->
+
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="modal-body p-0">
+					<table class="table data-table select-row hover nowrap" id="customer-table">
+						<thead>
+							<tr>
+								<th class="datatable-nosort">ID.</th>
+								<th class="datatable-nosort">Name</th>
+								<th class="datatable-nosort">Class</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for i in accs %}
+							<tr class="clickable">
+								<td>{{i.start}}</td>
+								<td>
+									{{i.name}}
+								</td>
+								<td><span class="badge badge-primary">{{pupil.myclass}}</span></td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" id="issue" class="btn btn-primary">Issue</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	{% for message in messages %}
+	<!-- success Popup html Start -->
+	<div class="modal fade" id="success-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-body text-center font-18">
+					<h3 class="mb-20">
+						{% if 'error' in message.tags %}Error{% elif 'success' in message.tags%}Success{% endif %}</h3>
+					<div class="mb-30 text-center">{% if 'error' in message.tags %}<img
+							src="{% static 'pris/vendors/images/cross.png' %}">{% elif 'success' in message.tags%}<img
+							src="{% static 'pris/vendors/images/success.png' %}">{% endif %}
+					</div>
+					{{message|capfirst}}
+				</div>
+				<div class="modal-footer justify-content-center">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- success Popup html End -->
+	{% endfor %}
+</div>
+
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+<!-- dependent selector edit -->
+<script>
+	$( document ).ready( function () {
+		$( '#success-modal' ).modal( 'show' );
+
+		var pupil_select = $( "#pupil-select" )
+		$( "#check-all" ).click( function () {
+			$( 'input:checkbox' ).not( this ).not( pupil_select ).prop( 'checked', this.checked );
+		} );
+		$( "#customer" ).click( function () {
+			$( '#pupil-modal' ).modal( 'show' );
+		} )
+
+		pupil_select.click( function () {
+			var row = $( "#customer-table tr" )
+
+			if ( row.hasClass( "selected" ) ) {
+				row.removeClass( "selected" );
+			} else {
+				// table.$( "tr.selected" ).removeClass( "selected" );
+				row.addClass( "selected" );
+			}
+		} );
+		var table = $( "#customer-table" ).DataTable();
+
+		$( '#issue' ).click( function () {
+			var rows = table.rows( '.selected' );
+			var ids = $.map( rows.data(), function ( item ) {
+				return item[ 0 ]
+			} )
+			console.log( ids.join( "," ) );
+			$( '#usernames' ).val( ids.join( "," ) );
+
+			$( "#lower-form" ).submit();
+		} );
+
+		$( '#post-btn' ).click( function () {
+			$( "#upper-form" ).submit();
+		} );
+	} );
+</script>
+{% endblock %}

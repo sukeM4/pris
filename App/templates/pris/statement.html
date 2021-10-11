@@ -1,0 +1,151 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}{% load humanize %}
+{% block styles %}
+
+{% endblock %}
+{% block main %}
+
+<!-- Simple Datatable start -->
+<div class="card-box mb-30">
+	<div class="pd-20">
+		<h4 class="text-blue h4">{{statement}} Account</h4>
+
+	</div>
+
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class=" table hover table-striped nowrap">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Payer / Payee</th>
+						<th>Description</th>
+						<th>General Ledger </th>
+						<th>Amount</th>
+						<!-- <th>CR</th> -->
+						<!-- <th>Balance</th> -->
+					</tr>
+				</thead>
+				<tbody>
+					{% for transaction in cashbook %}
+					<tr>
+						<td class="table-plus">{{transaction.journal_entry.date}}</td>
+						<td>{{transaction.journal_entry.payer_payee}}</td>
+						<td>{% if transaction.journal_entry.description %}{{transaction.journal_entry.description}}{% else %}-{% endif %}</td>
+						<td>{{transaction.ledger.acc_no}} {{transaction.ledger.name}}</td>
+						<!-- <td>{% if transaction.journal_entry.dr_ledger == acc %}<span
+								class="badge  badge-success ">{{transaction.journal_entry.amount|intcomma}}</span>{% endif %}
+						</td> -->
+						<td><span class="badge badge-warning">{{transaction.journal_entry.amount|intcomma}}</span></td>
+						<!-- <td><span class="badge badge-primary">{{transaction.balance|intcomma}}</span>
+						</td> -->
+					</tr>
+					<div class="modal fade" id="confirmation-modal-{{i.pk}}" tabindex="-1" role="dialog"
+						aria-hidden="true">
+						<div class="modal-dialog modal-dialog-centered" role="document">
+							<div class="modal-content">
+								<div class="modal-body text-center font-18">
+									<h4 class="padding-top-30 mb-30 weight-500">Are you sure you want to
+										delete?
+									</h4>
+									<div class="padding-bottom-30 row" style="max-width: 170px; margin: 0 auto;">
+										<div class="col-6">
+											<button type="button"
+												class="btn btn-secondary border-radius-100 btn-block confirmation-btn"
+												data-dismiss="modal"><i class="fa fa-times"></i></button>
+											NO
+										</div>
+										<form action="" method="post">{% csrf_token %}
+											<div class="col-6">
+												<button type="submit" name="delete" value="{{i.pk}}"
+													class="btn btn-primary border-radius-100 btn-block confirmation-btn"><i
+														class="fa fa-check"></i></button>
+												YES
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div id="edit-transaction-modal-{{i.pk}}" class="modal modal-top fade ">
+						<div class="modal-dialog modal-dialog-centered">
+							<div class="modal-content">
+								<form method="POST">
+									{% csrf_token %}
+									<div class="modal-body">
+										<h4 class="text-blue h4 mb-10">Edit Transaction </h4>
+										<div class="form-group">
+											<label>Description</label>
+											<input type="text" class="form-control" name="description"
+												value="{{i.description}}">
+										</div>
+										<div class="form-group">
+											<label>Account</label>
+											<select class="form-control " name="accType">
+												<option value="DR">DEBIT</option>
+												<option value="CR">CREDIT</option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label>Amount</label>
+											<input type="text" class="form-control" name="amount" value="{{i.amount}}">
+										</div>
+										<div class="form-group">
+											<label> Date</label>
+											<input type='text' class="date-picker form-control" name="date"
+												value="{{i.date}}" autocomplete="off">
+										</div>
+
+
+
+									</div>
+									<div class="modal-footer">
+										<button type="button" class="btn btn-outline-primary"
+											data-dismiss="modal">Cancel</button>
+										<button type="submit" class="btn btn-primary" value="{{i.pk}}"
+											name="edit">Edit</button>
+
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+					{% endfor %}
+					<tr>
+						<td colspan="4" class="text-center"><span class="h3">Total</span></td>
+						<!-- <td><span class="badge badge-success">{{dr_sum|intcomma}}</span>
+						</td> -->
+						<td><span class="badge badge-warning">{{amount|intcomma}}</span>
+						</td>
+						<td>
+							<!-- <span class="badge badge-primary">{{cr_sum|intcomma}}</span> -->
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- Form grid End -->
+
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+
+{% endblock %}

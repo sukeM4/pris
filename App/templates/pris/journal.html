@@ -1,0 +1,606 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}{% load humanize %}
+{% block styles %}
+
+<style>
+	/* #bal-acc-no-modal table tr td {
+		margin: 0;
+	}
+
+	#bal-acc-no-modal table tr td label {
+		margin: 0;
+	} */
+
+	.card-box table tr {
+		border: 1px solid #ecf0f4;
+	}
+
+	.custom-select2 {
+		height: 10px;
+	}
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: auto auto auto auto auto auto auto auto;
+        /* background-color: #2196F3; */
+        /* padding: 10px; */
+    }
+
+    .grid-item {
+        /* background-color: rgba(255, 255, 255, 0.8); */
+        border: 1px solid var(--secondary);
+        /* padding: 20px; */
+        /* font-size: 30px; */
+        text-align: center;
+    }
+
+</style>
+{% endblock %}
+{% block main %}
+<!-- Simple Datatable start -->
+<div class="card-box mb-30">
+	<div class="pd-20">
+		<h4 class="text-blue h4 text-capitalize">{{journal_type|unslugify}}</h4>
+
+	</div>
+	{% for message in messages %}
+	<div class="alert alert-warning alert-dismissible fade show m-2" role="alert">{{message}}
+		<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+			<span aria-hidden="true">&times;</span>
+		</button>
+	</div>
+	{% endfor %}
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class="table hover nowrap d-none">
+				<thead>
+					<tr>
+						<th>
+							<div class="dt-checkbox">
+								<input type="checkbox" id="check-all">
+								<span class="dt-checkbox-label"></span>
+							</div>
+						</th>
+						<th>Date</th>
+						<!-- <th>Document Type</th> -->
+						<th>Document No.</th>
+						<!-- <th>Cheque No.</th> not in receipt -->
+						<th>Account Type</th>
+						<th>Account No.</th>
+						<!-- <th>Payee/Payer</th> -->
+						{% if journal_type == 'transport-fees' %}
+						<th>Month Valid</th>
+						{% else %}
+						<th>Description</th>
+						{% endif %}
+						<th>Bal Account Type</th>
+						<th>Bal Account No.</th>
+						<th>Amount</th>
+						<th>Action</th>
+					</tr>
+				</thead>
+				<form action="" method="post" id="upper-form">{% csrf_token %}
+					<tbody>
+						{% for i in journal %}
+						<tr>
+							<td>
+								<!-- <div class="custom-control custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="post{{i.pk}}"
+										name="post{{i.pk}}">
+									<label class="custom-control-label" for="post{{i.pk}}"></label>
+								</div> -->
+								<div class="dt-checkbox">
+									<input type="checkbox" id="post{{i.pk}}" name="post{{i.pk}}">
+									<span class="dt-checkbox-label"></span>
+								</div>
+							</td>
+							<td class="table-plus">{{i.date}}</td>
+							<td>{{i.doc_no}}</td>
+							<td>{{i.acc_type}}</td>
+							<td>{{i.acc_no}}</td>
+							<td>{{i.description}}</td>
+							<td>{{i.bal_acc_type}}</td>
+							<td>{{i.bal_acc_no}}</td>
+							<td>{{i.amount|intcomma}}</td>
+							<!-- <td><span
+									class="badge {% if i.ledger.acc_type == 'DR' %} badge-success {% else %} badge-warning {% endif %} %}">{{i.ledger.acc_type}}</span>
+							</td> -->
+							<td>
+								<div class="dropdown">
+									<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#"
+										role="button" data-toggle="dropdown">
+										<i class="dw dw-more"></i>
+									</a>
+									<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+										<a class="dropdown-item" href="#" data-toggle="modal"
+											data-target="#edit-transaction-modal-{{i.pk}}" type="button"><i
+												class="dw dw-edit2"></i> Edit</a>
+										<a class="dropdown-item" href="#" data-toggle="modal"
+											data-target="#confirmation-modal-{{i.pk}}" type="button"><i
+												class="dw dw-delete-3"></i> Delete</a>
+									</div>
+								</div>
+							</td>
+						</tr>
+						<!-- <div class="modal fade" data-backdrop="static" id="confirmation-modal-{{i.pk}}" tabindex="-1"
+							role="dialog" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content">
+									<div class="modal-body text-center font-18">
+										<h4 class="padding-top-30 mb-30 weight-500">Are you sure you want to delete?
+										</h4>
+										<div class="padding-bottom-30 row" style="max-width: 170px; margin: 0 auto;">
+											<div class="col-6">
+												<button type="button"
+													class="btn btn-secondary border-radius-100 btn-block confirmation-btn"
+													data-dismiss="modal"><i class="fa fa-times"></i></button>
+												NO
+											</div>
+											<form action="" method="post">{% csrf_token %}
+												<div class="col-6">
+													<button type="submit" name="delete" value="{{i.pk}}"
+														class="btn btn-primary border-radius-100 btn-block confirmation-btn"><i
+															class="fa fa-check"></i></button>
+													YES
+												</div>
+											</form>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div id="edit-transaction-modal-{{i.pk}}" data-backdrop="static" class="modal modal-top fade ">
+							<div class="modal-dialog modal-dialog-centered">
+								<div class="modal-content">
+									<form method="POST">
+										{% csrf_token %}
+										<div class="modal-body">
+											<h4 class="text-blue h4 mb-10">Edit Transaction </h4>
+											<div class="form-group">
+
+												<input class="myform-control date-picker myform-control-sm " name="date"
+													placeholder="Choose Date " type="text" value="{% now 'j/m/Y' %}">
+											</div>
+											{% if journal_type == 'school-fees' or journal_type == 'transport-fees' %}
+											<div class="form-group">
+												<select class="custom-select2 myform-control myform-control-sm"
+													name="payer-payee" style="width: 100%; height: 38px;">
+													{% if pupils %}
+
+													{% for pupil in pupils %}
+													<option value="{{pupil.pk}}">{{pupil.get_fullname}}</option>
+													{% endfor %}
+													{% else %}
+													<option>Dummy</option>
+													{% endif %}
+												</select>
+											</div>
+											{% else %}
+											<div class="form-group">
+
+												<input class="myform-control-sm myform-control " name="payer-payee"
+													placeholder="{% if journal_type == 'payment-journal' %}Payee{% else %}Payer{% endif %}"
+													type="text" autocomplete="off">
+											</div>
+											{% endif %}
+
+											<div class="form-group">
+												<select class="custom-select2 myform-control myform-control-sm"
+													name="acc-no" style="width: 100%; height: 38px;">
+													{% if coa %}
+													{% for i in coa %}
+													<option value="{{i.acc_no}}">{{i.acc_no}} {{i.name}}</option>
+													{% endfor %}
+													{% else %}
+													<option></option>Dummy</option>
+													{% endif %}
+												</select>
+											</div>
+
+											<div class="form-group">
+												<select class="custom-select2 myform-control myform-control-sm"
+													name="bal-acc-no" style="width: 100%; height: 38px;">
+													{% if coa %}
+													{% for i in coa %}
+													<option value="{{i.acc_no}}">{{i.acc_no}} {{i.name}}</option>
+													{% endfor %}
+													{% else %}
+													<option>Dummy</option>
+													{% endif %}
+												</select>
+											</div>
+											{% if journal_type == 'transport-fees' %}
+
+											<div class="form-group">
+												<input class="myform-control datetimepicker-range myform-control-sm"
+													placeholder="Select Month" type="text" name="description"
+													autocomplete="off">
+											</div>
+											{% else %}
+
+											<div class="form-group">
+												<input type="text" name="description"
+													class="myform-control myform-control-sm" placeholder="description"
+													autocomplete="off">
+											</div>
+											{% endif %}
+
+											<div class="form-group">
+												<input type="number" name="amount"
+													class="myform-control myform-control-sm" placeholder="amount"
+													autocomplete="off">
+											</div>
+
+
+
+											<div class="form-group">
+												<button type="submit" name="journalize" class="btn btn-primary btn-sm">
+													<i class="dw dw-add"></i>
+												</button>
+											</div>
+
+										</div>
+										<div class="modal-footer">
+											<button type="button" class="btn btn-outline-primary"
+												data-dismiss="modal">Cancel</button>
+											<button type="submit" class="btn btn-primary" value="{{i.pk}}"
+												name="edit">Edit</button>
+
+										</div>
+									</form>
+								</div>
+							</div>
+						</div> -->
+
+						{% endfor %}
+					</tbody>
+				</form>
+				<!-- <tfoot> -->
+					<form action="" method="post" id="lower-form">{% csrf_token %}
+						<tr>
+							<td></td>
+							<td>
+								<div class="form-group">
+									<input class=" d-block date-picker myform-control " name="date"
+										placeholder="Choose Date " type="text" value="{% now 'j F Y' %}">
+								</div>
+
+							</td>
+							<!-- <td>
+								<div class="form-group">
+									<select class=" myform-control myform-control-sm" name="doc-type" id="doc-type">
+										<option value="payment">Payment</option>
+										<option value="invoice">Invoice</option>
+										<option value="receipt">Receipt</option>
+									</select>
+								</div>
+							</td> -->
+							<td>
+								<div class="form-group">
+									<input type="text" name="doc-no" id="doc-no"
+										class="myform-control myform-control-sm" placeholder="Document No."
+										autocomplete="off" readonly value="{{doc_no}}">
+								</div>
+								{% if journal_type == 'payment' %}
+								<div class="form-group">
+									<input type="number" name="cheque-no" id="cheque-no"
+										class="myform-control myform-control-sm" placeholder="Cheque No."
+										autocomplete="off">
+								</div>
+								{% endif %}
+							</td>
+							<td>
+								<div class="form-group">
+									<select class="select myform-control myform-control-sm" name="acc-type"
+										id="acc-type">
+										<option value="customer">Customer</option>
+										<option value="g/ledger">G/Ledger</option>
+										<option value="vender">Vender</option>
+										<option value="bank">Bank Account</option>
+									</select>
+								</div>
+							</td>
+							<td>
+								<div class="form-group ">
+									<input class="myform-control myform-control-sm" type="number" required id="acc-no"
+										name="acc-no" autocomplete="off">
+
+								</div>
+							</td>
+							{% if journal_type == 'transport-fees' %}
+							<td>
+								<div class="form-group">
+									<select class="custom-select2 myform-control myform-control-sm" multiple="multiple"
+										style="width: 100%;">
+										<option value="">Jan</option>
+										<option value="">Feb</option>
+										<option value="">Mar</option>
+										<option value="">Apr</option>
+										<option value="">May</option>
+										<option value="">Jun</option>
+										<option value="">Jul</option>
+										<option value="">Aug</option>
+										<option value="">Sep</option>
+										<option value="">Oct</option>
+										<option value="">Nov</option>
+										<option value="">Dec</option>
+									</select>
+
+								</div>
+							</td>
+							{% else %}
+							<td>
+								<div class="form-group">
+									<input type="text" name="description" class="myform-control myform-control-sm"
+										placeholder="description" autocomplete="off">
+								</div>
+							</td>
+							{% endif %}
+							<td>
+								<div class="form-group">
+									<select class="select myform-control myform-control-sm" name="bal-acc-type"
+										id="bal-acc-type">
+										<option value="customer">Customer</option>
+										<option value="g/ledger">G/Ledger</option>
+										<option value="vender">Vender</option>
+										<option value="bank">Bank Account</option>
+									</select>
+								</div>
+							</td>
+							<td>
+								<div class="form-group ">
+									<input class="myform-control myform-control-sm" type="number" required
+										id="bal-acc-no" name="bal-acc-no" autocomplete="off">
+								</div>
+							</td>
+							<td>
+								<div class="form-group">
+									<input type="number" name="amount" class="myform-control myform-control-sm"
+										placeholder="amount" required autocomplete="off" id="amount">
+								</div>
+							</td>
+							<td>
+								<div class="form-group">
+									<button type="submit" id="add-btn" name="journalize" class="btn btn-primary btn-sm">
+										<i class="dw dw-add"></i>
+									</button>
+								</div>
+							</td>
+						</tr>
+						</form>
+						<!-- <tr class="d-none">
+							<td colspan="10">
+								<div class="form-group">
+									<input class="d-block date-picker form-control " name="date"
+										placeholder="Choose Date " type="text" value="{% now 'j F Y' %}">
+								</div>
+								<div class="form-group">
+									<input type="text" name="doc-no"  class="form-control form-control-sm"
+										placeholder="Document No." autocomplete="off" readonly value="{{doc_no}}">
+								</div>
+								{% if journal_type == 'payment' %}
+								<div class="form-group">
+									<input type="number" name="cheque-no" id="cheque-no"
+										class="form-control form-control-sm" placeholder="Cheque No."
+										autocomplete="off">
+								</div>{% endif %}
+								<div class="form-group">
+									<select class=" form-control form-control-sm" name="acc-type">
+										<option value="customer">Customer</option>
+										<option value="g/ledger">G/Ledger</option>
+										<option value="vender">Vender</option>
+										<option value="bank">Bank Account</option>
+									</select>
+								</div>
+								<div class="form-group ">
+									<input class="form-control form-control-sm" type="number" required id="acc-no"
+										name="acc-no" autocomplete="off">
+
+								</div>
+
+								{% if journal_type == 'transport-fees' %}
+
+								<div class="form-group">
+									<select class="custom-select2 form-control form-control-sm" multiple="multiple"
+										style="width: 100%;">
+										<option value="">Jan</option>
+										<option value="">Feb</option>
+										<option value="">Mar</option>
+										<option value="">Apr</option>
+										<option value="">May</option>
+										<option value="">Jun</option>
+										<option value="">Jul</option>
+										<option value="">Aug</option>
+										<option value="">Sep</option>
+										<option value="">Oct</option>
+										<option value="">Nov</option>
+										<option value="">Dec</option>
+									</select>
+
+								</div>
+
+								{% else %}
+
+								<div class="form-group">
+									<input type="text" name="description" class="form-control form-control-sm"
+										placeholder="description" autocomplete="off">
+								</div>
+								{% endif %}
+								<div class="form-group">
+									<select class="select form-control form-control-sm" name="bal-account-type">
+										<option value="customer">Customer</option>
+										<option value="g/ledger">G/Ledger</option>
+										<option value="vender">Vender</option>
+										<option value="bank">Bank Account</option>
+									</select>
+								</div>
+								<div class="form-group ">
+									<input class="form-control form-control-sm" type="number" autocomplete="off"
+										id="bal-acc-no" name="bal-acc-no">
+								</div>
+								<div class="form-group">
+									<input type="number" name="amount" class="form-control form-control-sm"
+										placeholder="amount" autocomplete="off" required>
+								</div>
+
+
+								<div class="form-group">
+									<button type="submit" name="journalize" class="btn btn-primary btn-sm">
+										<i class="dw dw-add"></i>
+									</button>
+								</div>
+							</td>
+						</tr> -->
+
+				<!-- </tfoot> -->
+			</table>
+		</div>
+		<div class="grid-container">
+		    <div class="grid-item">Test</div>
+		    <div class="grid-item">Test</div>
+		    <div class="grid-item">Test</div>
+		    <div class="grid-item">Test</div>
+		    <div class="grid-item">Test</div>
+		    <div class="grid-item">Test</div>
+		    <div class="grid-item">Test</div>
+		    <div class="grid-item">Test</div>
+
+            <input type="text" class="grid-item">
+            <input type="text" class="grid-item">
+            <input type="text" class="grid-item">
+            <input type="text" class="grid-item">
+            <input type="text" class="grid-item">
+            <input type="text" class="grid-item">
+            <input type="text" class="grid-item">
+            <input type="text" class="grid-item">
+        </div>
+		<div class="row">
+			<div class="col text-center"><button type="button" id="post-btn" class="btn  btn-outline-primary"
+					name="to-cashbook">Post</button>
+			</div>
+		</div>
+		</form>
+	</div>
+</div>
+
+<div class="modal fade bs-example-modal-lg" id="acc-modal" tabindex="-1" role="dialog"
+	aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-lg modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title" id="myLargeModalLabel">Chart of Accounts</h4>
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			</div>
+			<div class="modal-body p-0">
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+<!-- dependent selector edit -->
+<script>
+	$( document ).ready( function () {
+		$( "#check-all" ).click( function () {
+			$( 'input:checkbox' ).not( this ).prop( 'checked', this.checked );
+		} );
+		$( "input[name='acc-no']" ).click( function () {
+			$( '#acc-modal' ).modal( 'show' );
+		} );
+
+		$( "input[name='bal-acc-no']" ).click( function () {
+			$( '#acc-modal' ).modal( 'show' );
+		} )
+		$( 'form input' ).keydown( function ( e ) {
+			if ( e.keyCode == 13 ) {
+				var inputs = $( this ).parents( "form" ).eq( 0 ).find( ":input" );
+				if ( inputs[ inputs.index( this ) + 1 ] != null ) {
+					inputs[ inputs.index( this ) + 1 ].focus();
+				}
+				e.preventDefault();
+				return false;
+			}
+		} );
+		$( "#doc-type" ).change( function () {
+			var url = "{% url 'load-doc-no' %}"  // get the url of the `load_cities` view
+			var doc_type = $( this ).val();  // get the selected country ID from the HTML input
+
+			$.ajax( {                       // initialize an AJAX request
+				url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+				data: {
+					'doc-type': doc_type       // add the country id to the GET parameters
+				},
+				success: function ( data ) {   // `data` is the return of the `load_cities` view function
+					$( '#doc-no' ).val( data );	// replace the contents of the city input with the data that came from the server
+				}
+			} );
+
+			if ( $( "#doc-type" ).val() == 'payment' ) {
+				$( "#cheque-no" ).show();
+				// document.getElementById('cheque-no').style.display="None";
+			} else {
+				$( "#cheque-no" ).hide();
+				// document.getElementById( 'cheque-no' ).style.display = "None";
+
+
+			};
+		} ).change();
+		$( "input[name='acc-no']" ).click( function () {
+			var url = "{% url 'load-acc-no' %}"  // get the url of the `load_cities` view
+			var acc_type = $( "#acc-type" ).val();  // get the selected country ID from the HTML input
+			var name = $( "input[name='acc-no']" ).attr( 'name' );
+
+			$.ajax( {                       // initialize an AJAX request
+				url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+				data: {
+					'acc-type': acc_type,
+					'name': name,      // add the country id to the GET parameters
+				},
+				success: function ( data ) {   // `data` is the return of the `load_cities` view function
+					$( "#acc-modal .modal-body" ).html( data );	// replace the contents of the city input with the data that came from the server
+				}
+			} );
+		} ).change();
+		$( "input[name='bal-acc-no']" ).click( function () {
+			var url = "{% url 'load-acc-no' %}"  // get the url of the `load_cities` view
+			var acc_type = $( "#bal-acc-type" ).val();  // get the selected country ID from the HTML input
+			var name = $( "input[name='bal-acc-no']" ).attr( 'name' );
+
+			$.ajax( {                       // initialize an AJAX request
+				url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+				data: {
+					'acc-type': acc_type,
+					'name': name,
+				},
+				success: function ( data ) {   // `data` is the return of the `load_cities` view function
+					$( "#acc-modal .modal-body" ).html( data );	// replace the contents of the city input with the data that came from the server
+				}
+			} );
+		} ).change();
+		// $( '#add-btn' ).click( function () {
+		// 	$( "#lower-form" ).submit();
+		// } );
+		$( '#post-btn' ).click( function () {
+			$( "#upper-form" ).submit();
+		} );
+	} );
+</script>
+{% endblock %}

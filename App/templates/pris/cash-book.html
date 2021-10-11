@@ -1,0 +1,103 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}{% load humanize %}
+{% block styles %}
+
+{% endblock %}
+{% block main %}
+<!-- Simple Datatable start -->
+
+<form action="" method="post">{% csrf_token %}
+	<div class="clearfix">
+		<div class="pull-right">
+			<div class="card-box mb-30">
+				<div class="p-1 pl-5 "><small>date:  month / date / year</small></div>
+				<div class="pd-10 d-flex">
+
+					<!-- <div class="row"> -->
+
+						<div class="p-1">
+							<input class="form-control datetimepicker-range form-control-sm" placeholder="Select Month" type="text"
+								name="date" autocomplete="off" value="{{start_date|date:'m/j/Y'}} - {{end_date|date:'m/j/Y'}}">
+						</div>
+						<div class="p-1">
+							<button type="submit" class="btn btn-primary">
+								<i class="dw dw-download1"></i>
+							</button>
+						</div>
+					<!-- </div> -->
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+<!-- Simple Datatable start -->
+<div class="card-box mb-30">
+	<div class="pd-20">
+		<h4 class="text-blue h4">Cash Book</h4>
+
+	</div>
+
+	<div class="pb-20">
+		<div class="table-responsive">
+			<table class=" table hover table-striped nowrap">
+				<thead>
+					<tr>
+						<th>Date</th>
+						<th>Description</th>
+						<th>General Ledger </th>
+						<th>DR</th>
+						<th>CR</th>
+						<th>Balance</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for transaction in cashbook %}
+					<tr>
+						<td class="table-plus">{{transaction.date}}</td>
+						<td class="text-center">{% if transaction.description %}{{transaction.description}}{% else %}-{% endif %}</td>
+						<td>{{transaction.bal_acc_no}}</td>
+						<td>{% if transaction.acc_no.parent == acc %}<span
+								class="badge  badge-success ">{{transaction.amount|intcomma}}</span>{% endif %}
+						</td>
+						<td>{% if transaction.acc_no.parent != acc %}<span
+								class="badge badge-warning">{{transaction.amount|intcomma}}</span>{% endif %}
+						</td>
+						<td><span class="badge badge-primary">{% mybalance cashbook acc transaction %}</span>
+						</td>
+					</tr>
+					{% endfor %}
+					<tr>
+						<td colspan="3" class="text-center"><span class="h3">Total</span></td>
+						<td><span class="badge badge-success">{% mydr_sum cashbook acc %}</span>
+						</td>
+						<td><span class="badge badge-warning">{% mycr_sum cashbook acc %}</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+<!-- Form grid End -->
+
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+
+{% endblock %}

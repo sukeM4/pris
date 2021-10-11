@@ -1,0 +1,162 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}
+{% block main %}
+
+<div class="mb-30 card-box">
+	<div class="clearfix">
+		<div class="pull-left">
+			<h5 class="h4 text-blue mb-20 pd-20">List of Exams</h5>
+		</div>
+		{% if user.is_superuser or user.is_it%}
+		<div class="pull-right">
+			<a class="btn btn-primary m-3 " href="" data-toggle="modal" data-target="#exam-modal"
+				data-backdrop="static">
+				<i class="dw dw-add"></i> add exam
+			</a>
+		</div>
+		{% endif %}
+	</div>
+
+
+	<!-- multiple select row Datatable start -->
+	<table class="data-table table hover multiple-select-row  nowrap">
+		<thead>
+			<tr>
+				<th>No.</th>
+				<th>Type</th>
+				<th>Begining Date</th>
+				<th>Ending Date</th>
+				<th>School Average</th>
+				<th>School Grade</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for i in report_list%}
+			<tr class="clickable-row" data-href="{%url 'exam-group-list' i.exam.id %}">
+				<td>{{forloop.counter}}.</td>
+				<td class="table-plus">{{i.exam.exam_type}}</td>
+				<td>{{i.exam.start_date}} </td>
+				<td>{{i.exam.end_date}}</td>
+				<td><span
+						class="badge {% if i.average < 35 %} badge-danger{% elif i.average < 50 %} badge-warning{% elif i.average < 65 %} badge-secondary{% elif i.average < 85 %} badge-success{% else %} badge-primary{% endif %}">{{i.average}}</span>
+				</td>
+				<td><span
+						class="badge {% if i.average < 35 %} badge-danger{% elif i.average < 50 %} badge-warning{% elif i.average < 65 %} badge-secondary{% elif i.average < 85 %} badge-success{% else %} badge-primary{% endif %}">
+						{% if i.average < 35 %} F {% elif i.average < 50 %} D {% elif i.average < 65 %} C
+						{% elif i.average < 85 %}
+						B {% else %} A {% endif %}</span>
+				</td>
+
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	<div class="modal fade" id="exam-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered pt-0 mt-0">
+			<div class="modal-content">
+				<form method="POST" enctype="multipart/form-data" id="exam-create-form"
+					data-url="{% url 'load-subjects' %}">
+					{% csrf_token %}
+					<div class="modal-body">
+
+						<h4 class="text-blue h4 mb-10">Exam Detail</h4>
+
+						<div class="form-group">
+							<label>Exam Type</label>
+							<select class="form-control" name="exam-type">
+								<option value="Mid-Term">Mid-Term</option>
+								<option value="Annual">Annual</option>
+								<option value="Monthly">Monthly</option>
+								<option value="Terminal">Terminal</option>
+								<option value="Mock">Mock</option>
+								<option value="Necta">Necta</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label>Begining Date</label>
+							<input type='text' class="date-picker form-control" name="start-date" autocomplete="off"
+								value="{% now 'j F Y'%}">
+						</div>
+						<div class="form-group">
+							<label>Ending Date</label>
+							<input type='text' class="date-picker form-control" name="end-date" autocomplete="off"
+								value="{% now 'j F Y'%}">
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary" name="exam-create">Create</button>
+						<button type="button" class="btn btn-outline-primary" data-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	{% for message in messages %}
+	<!-- success Popup html Start -->
+	<div class="modal fade" id="success-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-body text-center font-18">
+					<h3 class="mb-20">Error</h3>
+					<div class="mb-30 text-center"><img src="{% static 'pris/vendors/images/cross.png' %}"></div>
+					{{message}}
+				</div>
+				<div class="modal-footer justify-content-center">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- success Popup html End -->
+	{% endfor %}
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+
+<!-- masuke edit for clickable row -->
+<script>
+	jQuery( document ).ready( function ( $ ) {
+		$( ".clickable-row" ).click( function () {
+			window.location = $( this ).data( "href" );
+		} );
+		$( "#success-modal" ).modal( "show" );
+
+	} );
+</script>
+
+<script>
+	$( "#class-select" ).change( function () {
+		var url = $( "#exam-create-form" ).attr( "data-url" );  // get the url of the `load_cities` view
+		var classname = $( this ).val();  // get the selected country ID from the HTML input
+
+		$.ajax( {                       // initialize an AJAX request
+			url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+			data: {
+				'class': classname       // add the country id to the GET parameters
+			},
+			success: function ( data ) {   // `data` is the return of the `load_cities` view function
+				$( "#subject" ).html( data );	// replace the contents of the city input with the data that came from the server
+
+			}
+		} );
+	} );
+</script>
+{% endblock %}

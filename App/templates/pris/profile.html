@@ -1,0 +1,1378 @@
+{% extends 'pris/base.html' %}
+{% load static %}
+{% load mytags %}{% load humanize %}
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'pris/src/plugins/cropperjs/dist/cropper.min.css' %}">
+<!-- switchery css -->
+<link rel="stylesheet" type="text/css" href="{% static 'pris/src/plugins/switchery/switchery.min.css' %}">
+{% endblock %}
+{% block main %}
+
+<div class="row">
+	<div class="col-xl-4 col-lg-4 col-md-4 col-sm-12 mb-30">
+		<div class="pd-20 card-box height-100-p">
+		    {% if user.is_superuser %}
+			<div class="clearfix">
+				<div class="pull-right">
+					<a href="" data-target="#confirmation-modal" data-toggle="modal" class="btn btn-primary"
+						name="delete">
+						<i class="dw dw-trash"></i>
+					</a>
+					<div class="modal fade" id="confirmation-modal" tabindex="-1" role="dialog" aria-hidden="true">
+						<div class="modal-dialog modal-dialog-centered" role="document">
+							<div class="modal-content">
+								<div class="modal-body text-center font-18">
+									<h4 class="padding-top-30 mb-30 weight-500">Are you sure you want to delete?
+									</h4>
+									<div class="padding-bottom-30 row" style="max-width: 170px; margin: 0 auto;">
+										<div class="col-6">
+											<button type="button"
+												class="btn btn-secondary border-radius-100 btn-block confirmation-btn"
+												data-dismiss="modal"><i class="fa fa-times"></i></button>
+											NO
+										</div>
+										<form action="" method="post">{% csrf_token %}
+											<div class="col-6">
+												<button type="submit" name="delete"
+													class="btn btn-primary border-radius-100 btn-block confirmation-btn"><i
+														class="fa fa-check"></i></button>
+												YES
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% endif %}
+			<div class="profile-photo">
+				{% if user.is_superuser or user.is_it %}
+				<a href="modal" data-toggle="modal" data-target="#modal" class="edit-avatar"><i
+						class="fa fa-pencil"></i></a>
+				{% endif %}
+				<img src="{% if s_user.photo %}{{ s_user.photo.url }} {% else %} {% static 'pris\vendors\images\avatar.png' %}  {% endif %}"
+					alt="" class="avatar-photo">
+				<div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel"
+					aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered" role="document">
+						<div class="modal-content">
+							<form action="" method="POST" enctype="multipart/form-data" id="formUpload">
+								{% csrf_token %}
+								<div class="modal-body pd-5">
+									<div class="img-container">
+										<img id="image"
+											src="{% if s_user.photo %}{{ s_user.photo.url }} {% else %} {% static 'pris\vendors\images\avatar.png' %}  {% endif %}"
+											alt="Picture">
+									</div>
+									<div class="form-group">
+										<input class="form-control-file form-control height-auto" type="file"
+											name="photo">
+									</div>
+									<div class="form-group">
+										<input class=" form-control height-auto" type="number" name="x" id="id_x"
+											hidden>
+									</div>
+									<div class="form-group">
+										<input class=" form-control height-auto" type="number" name="y" id="id_y"
+											hidden>
+									</div>
+									<div class="form-group">
+										<input class=" form-control height-auto" type="number" name="height"
+											id="id_height" hidden>
+									</div>
+									<div class="form-group">
+										<input class=" form-control height-auto" type="number" name="width"
+											id="id_width" hidden>
+									</div>
+
+									<div id="cropped_result"></div>
+								</div>
+								<div class="modal-footer">
+									<button type="button" name="crop" class="btn btn-primary js-crop-and-upload"
+										id="crop_button">crop</button>
+									<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% for message in messages %}
+			<div class="modal fade" id="success-modal" tabindex="-1" role="dialog"
+				aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+				<div class="modal-dialog modal-dialog-centered" role="document">
+					<div class="modal-content">
+						<div class="modal-body text-center font-18">
+							<h3 class="mb-20">{{message}}</h3>
+							<div class="mb-30 text-center"><img src="{% static 'pris/vendors/images/success.png' %}">
+							</div>
+						</div>
+						<div class="modal-footer justify-content-center">
+							<button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			{% endfor %}
+			<h5 class="text-center h5 mb-0 text-uppercase">{{s_user.get_fullname|upper}}</h5>
+			<div class="profile-info">
+				<h5 class="mb-20 h5 text-blue">Contact Information</h5>
+				<ul>
+					<li>
+						<span>Username:</span>
+						{{s_user.username}}
+					</li>
+					{% if s_user.pupil %}
+					<li>
+						<span>class:</span>
+						{{s_user.pupil.myclass}}
+					</li>
+					{% endif %}
+					<li>
+						<span>Email Address:</span>
+						{% if s_user.email %}
+						{{s_user.email}}
+						{% else %}
+						None
+						{% endif %}
+					</li>
+					<li>
+						<span>Phone Number:</span>
+						{% for i in s_user.contact_set.all %}
+						<i class="icon-copy fa fa-phone" aria-hidden="true"></i>
+						{{i.tel}},&nbsp;&nbsp;
+						{% endfor %}
+					</li>
+					<li>
+						<span>Country:</span>
+						America
+					</li>
+					<li>
+						<span>Keeper:</span>
+						{{s_user.keeper}} Holden Street<br>
+						San Diego, CA 92115
+					</li>
+				</ul>
+			</div>
+			<div class="profile-social">
+				<h5 class="mb-20 h5 text-blue">Role</h5>
+				<ul class="clearfix">
+					{% if s_user.employee %}
+					<li>
+
+						<span class="badge badge-info">{{s_user.employee.category}}</span>
+					</li>{% endif %}
+					<li>{% if s_user.employee.teacher  %}
+						<span class="badge badge-primary">
+							{{s_user.employee.teacher}}</span>
+						{% endif %}
+						{% if s_user.employee.is_it %}
+						<span class="badge badge-primary">IT</span>
+						{% endif %}
+						{% if s_user.pupil  %}
+						<span class="badge badge-primary">
+							pupil</span>
+						{% endif %}
+					</li>
+				</ul>
+			</div>
+			<div class="profile-social"><span>Status :</span><br>
+				<div class="clearfix">
+					<div class="pull-left">
+						<span class="badge badge-primary" id="badge">{% if s_user.is_active %}active{% else %}not
+							active{% endif %}</span></div>
+					<div class="pull-right">
+						<input type="checkbox" id="checker" class="switch-btn" data-size="small" data-color="#0099ff"
+							{% if s_user.is_active %}checked{% endif %}>
+					</div>
+				</div>
+
+			</div>
+		</div>
+	</div>
+	<div class="col-xl-8 col-lg-8 col-md-8 col-sm-12 mb-30">
+		<div class="card-box height-100-p overflow-hidden">
+			<div class="profile-tab height-100-p">
+				<div class="tab height-100-p">
+					<ul class="nav nav-tabs customtab" role="tablist">
+						{% if s_user.is_pupil %}
+						<li class="nav-item">
+							<a class="nav-link active" data-toggle="tab" href="#info" role="tab"><span
+									class="d-none d-sm-inline-block">Info</span><span class="d-sm-none"><i
+										class="dw dw-information"></i></span></a>
+						</li>
+						<li class="nav-item">
+							<!-- <a class="nav-link" data-toggle="tab" href="#prev-school" role="tab"><span class="d-none d-sm-inline-block">Prev Schools</span><span class="d-sm-none"><i class="dw dw"></i></span></a> -->
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#medical-records" role="tab"><span
+									class="d-none d-sm-inline-block">Medical Records</span><span class="d-sm-none"><i
+										class="dw dw-hospital"></i></span></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#guardian" role="tab"><span
+									class="d-none d-sm-inline-block">Guardians</span><span class="d-sm-none"><i
+										class="dw dw-user-1"></i></span></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#report" role="tab"><span
+									class="d-none d-sm-inline-block">Report</span><span class="d-sm-none"><i
+										class="dw dw-bar-chart-1"></i></span></a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#fees" role="tab"><span
+									class="d-none d-sm-inline-block">Payments</span><span class="d-sm-none"><i
+										class="dw dw-money"></i></span></a>
+						</li>
+						{% elif s_user.is_employee %}
+						<li class="nav-item">
+							<a class="nav-link active" data-toggle="tab" href="#tasks" role="tab">Task</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" href="#setting" role="tab">Report</a>
+						</li>
+						{% endif %}
+					</ul>
+					<div class="tab-content">
+						{% if s_user.is_pupil %}
+						<!-- First Term Report Tab start -->
+						<div class="tab-pane fade show active" id="child-info" role="tabpanel">
+							<div class="container pd-10">
+								<section>
+									<h5 class="mb-30 ">Child Personal Particulars</h5>
+									<div class="row">
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>First Name :</label>
+												<input readonly type="text" class="required form-control"
+													name="first-name" value="{{s_user.first_name|upper}}">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Middle Name :</label>
+												<input readonly type="text" class="required form-control"
+													name="middle-name" value="{{s_user.middle_name|upper}}">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Last Name :</label>
+												<input readonly type="text" class="required form-control"
+													name="last-name" value="{{s_user.last_name|upper}}">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Date of Birth :</label>
+												<input readonly type="text" class="form-control date-picker required"
+													placeholder="Select Date" name="birth-date"
+													value="{{s_user.birth_date|date:'j F Y'}}" autocomplete="off">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Place of Birth :</label>
+												<input readonly type="text" class="form-control required"
+													name="birth-place" value="{{s_user.pupil.birth_place|upper}}">
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Gender</label>
+												<div class="d-flex">
+													<div class="custom-control custom-radio mb-5 mr-20">
+														<input disabled type="radio" id="female" name="sex"
+															class="custom-control-input" value="female"
+															{% if s_user.sex == 'female' %}checked{% endif %}>
+														<label class="custom-control-label weight-400"
+															for="female">Female</label>
+													</div>
+													<div class="custom-control custom-radio mb-5">
+														<input disabled type="radio" id="male" name="sex"
+															class="custom-control-input required" value="male"
+															{% if s_user.sex == 'male' %}checked{% endif %}>
+														<label class="custom-control-label weight-400"
+															for="male">Male</label>
+													</div>
+												</div>
+											</div>
+										</div>
+
+									</div>
+									<div class="row">
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Class Applied :</label>
+												<select class="selectpicker form-control " name="class-applied"
+													disabled>
+													{% for grade_level in grade_levels %}
+													<optgroup label="{{grade_level}}" data-max-options="2">
+														{% for myclass in grade_level.myclass_set.all %}
+														<option value="{{myclass.position}}"
+															{% if s_user.pupil.class_applied == myclass %}selected{% endif %}>
+															{{myclass}}</option>
+														{% endfor %}
+													</optgroup>
+													{% endfor %}
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Class Admitted :</label>
+												<select class="selectpicker form-control " name="class-admitted"
+													disabled>
+													{% if grade_levels %}
+													{% for grade_level in grade_levels %}
+													<optgroup label="{{grade_level}}" data-max-options="2">
+														{% if grade_level.myclass_set.all %}
+														{% for myclass in grade_level.myclass_set.all %}
+														<option value="{{myclass.position}}"
+															{% if s_user.pupil.class_joined == myclass %}selected{% endif %}>
+															{{myclass}}</option>
+														{% endfor %}
+														{% endif %}
+													</optgroup>
+													{% endfor %}
+													{% endif %}
+												</select>
+											</div>
+										</div>
+										<div class="col-md-4">
+											<div class="form-group">
+												<label>Date Admitted :</label>
+												<input readonly type="text"
+													class="required form-control date-picker required"
+													placeholder="Select Date"
+													value="{{s_user.date_joined|date:'j F Y'}}" name="date-admitted"
+													autocomplete="off">
+											</div>
+										</div>
+									</div>
+								</section>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="prev-school" role="tabpanel">
+							<div class="container pd-10">
+								<section>
+									<h5 class="mb-30">Previous School Attended</h5>
+									{% for school in s_user.pupil.previousschool_set.all %}
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label>Name of Nursery School(s) :</label>
+												<input readonly type="text" class="form-control" name="prev-1-name"
+													value="{{school.name|upper}}">
+											</div>
+										</div>
+
+										<div class="col-md-6">
+											<div class="form-group">
+												<label>Category of Nursery :</label>
+												<div class="d-flex">
+													<div class="custom-control custom-radio mb-5 mr-20">
+														<input disabled type="radio" id="customRadio3"
+															name="prev-1-medium" value="english"
+															class="custom-control-input"
+															{% if school.medium == 'english' %}checked{% endif %}>
+														<label class="custom-control-label weight-400"
+															for="customRadio3">English
+															Medium</label>
+													</div>
+													<div class="custom-control custom-radio mb-5">
+														<input disabled type="radio" id="customRadio4"
+															name="prev-1-medium" value="swahili"
+															class="custom-control-input"
+															{% if school.medium == 'swahili' %}checked{% endif %}>
+														<label class="custom-control-label weight-400"
+															for="customRadio4">Swahili
+															Medium</label>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label>Date of Admission :</label>
+												<input readonly type="text" class="form-control date-picker"
+													placeholder="Select Date"
+													value="{{school.date_admitted|date:'j F Y'}}"
+													name="prev-1-date-admitted" autocomplete="off">
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="form-group">
+												<label>Date left :</label>
+												<input readonly type="text" class="form-control date-picker"
+													placeholder="Select Date" name="prev-1-date-left"
+													value="{{school.date_left|date:'j F Y'}}" autocomplete="off">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="form-group">
+												<label>Reason(s) for leaving the previous school :</label>
+												<input readonly class="form-control" name="prev-1-reasons"
+													value="{{school.reasons|upper}}">
+											</div>
+										</div>
+										<div class="col-md-6">
+											<div class="custom-control custom-checkbox mb-5">
+												<input readonly type="checkbox" class="custom-control-input"
+													id="customCheck1" name="prev-1-report"
+													{% if school.is_report_attached %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck1">is a copy of
+													Assessment Report
+													attached?</label>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+									<hr>
+									<div class="row">
+										<div class="col-md-12">
+											<div class="form-group">
+												<label>
+													<h4 class="h4">REASON(S) TO STUDY AT MALEN :</h4>
+												</label>
+												<input readonly class="form-control" name="reasons-at-malen"
+													value="{{s_user.pupil.reasons_at_malen|upper}}">
+											</div>
+										</div>
+									</div>
+								</section>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="medical-records" role="tabpanel">
+							<div class="container pd-10">
+								<section>
+									<h5 class="mb-30">Medical Records</h5>
+									<div class="row">
+										<div class="col"><label class="weight-600">Immunization: </label></div>
+									</div>
+									<div class="row mb-30">
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck2"
+													name="dpt"
+													{% if s_user.pupil.medicalrecords.is_dpt %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck2">
+													DPT</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck3"
+													name="pv"
+													{% if s_user.pupil.medicalrecords.is_pv %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck3">
+													PV</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck4"
+													name="tetanus"
+													{% if s_user.pupil.medicalrecords.is_tetanus %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck4">
+													TETANUS</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck5"
+													name="pertussis"
+													{% if s_user.pupil.medicalrecords.is_pertussis %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck5">
+													PERTUSSIS</label>
+											</div>
+										</div>
+
+									</div>
+									<div class="row ">
+										<div class="col"><label class="weight-600"> Does your child suffer from any of
+												the
+												conditions
+												stated below?</label></div>
+									</div>
+									<div class="row mb-30">
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck6"
+													name="diabetes"
+													{% if s_user.pupil.medicalrecords.is_diabetes %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck6">
+													Diabetes</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck7"
+													name="epilepsy"
+													{% if s_user.pupil.medicalrecords.is_epilepsy %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck7">
+													Epilepsy</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck8"
+													name="convulsion"
+													{% if s_user.pupil.medicalrecords.is_convulsion %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck8">
+													Convulsion</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck9"
+													name="asthma"
+													{% if s_user.pupil.medicalrecords.is_asthma %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck9">
+													Asthma</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck10"
+													name="tb"
+													{% if s_user.pupil.medicalrecords.is_tb %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck10">
+													TB</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck11"
+													name="rheumatism"
+													{% if s_user.pupil.medicalrecords.is_rheumatism %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck11">
+													Rheumatism</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck13"
+													name="eye-problems"
+													{% if s_user.pupil.medicalrecords.is_eye_problems %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck13">
+													Eye problems</label>
+											</div>
+										</div>
+										<div class="col-md-3">
+											<div class="custom-control custom-checkbox mb-5">
+												<input type="checkbox" class="custom-control-input" id="customCheck14"
+													name="physical-disabilities"
+													{% if s_user.pupil.medicalrecords.is_physical_disabilities %}checked{% endif %}>
+												<label class="custom-control-label" for="customCheck14">
+													Physical Disabilities</label>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col">
+											<div class="form-group">
+												<label>Is your child taking and medication regularly at home? If yes,
+													what
+													kind of
+													medicine
+													(s) specify and /or prescribe</label>
+												<input readonly class="form-control" name="medication"
+													value="{{s_user.pupil.medicalrecords.medication}}">
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col">
+											<label> Does your childhave any allergy? If yet, be specific when listing
+												drugs
+												(s)
+												food,
+												things allergies.</label></div>
+									</div>
+									<div class="form-group row">
+										{% for allergy in s_user.pupil.medicalrecords.allergy_set.all %}
+										<div class="col-md-6 mb-10 ">
+											<input readonly type="text" class="form-control" name="allergy1"
+												value="{{allergy.name}}"></div>{% endfor %}
+									</div>
+
+								</section>
+							</div>
+						</div>
+						<div class="tab-pane fade" id="guardian" role="tabpanel">
+							<div class="container pd-10">
+								<section>
+									{% for parent in s_user.pupil.guardianparticulars_set.all %}
+									<div class="mb-30">
+										<h5>{{parent.relation|capfirst}}’s particular</h5>
+										<div>
+											<div class="row">
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>First Name :</label>
+														<input readonly type="text" class="form-control"
+															name="father-first-name" value="{{parent.first_name|upper}}">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Middle Name</label>
+														<input readonly type="text" class="form-control"
+															name="father-middle-name" value="{{parent.middle_name|upper}}">
+													</div>
+												</div>
+												<div class="col-md-4">
+													<div class="form-group">
+														<label>Last Name</label>
+														<input readonly type="text" class="form-control"
+															name="father-last-name" value="{{parent.last_name|upper}}">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-2">
+													<div class="form-group">
+														<label>Village/ Street</label>
+														<input readonly type="text" class="form-control"
+															name="father-village-street"
+															value="{{parent.village_street|upper}}">
+													</div>
+												</div>
+												<div class="col-md-2">
+													<div class="form-group">
+														<label>Ward</label>
+														<input readonly type="text" class="form-control"
+															name="father-ward" value="{{parent.ward|upper}}">
+													</div>
+												</div>
+												<div class="col-md-2">
+													<div class="form-group">
+														<label>Division</label>
+														<input readonly type="text" class="form-control"
+															name="father-division" value="{{parent.division|upper}}">
+													</div>
+												</div>
+												<div class="col-md-2">
+													<div class="form-group">
+														<label>District</label>
+														<input readonly type="text" class="form-control"
+															name="father-district" value="{{parent.district|upper}}">
+													</div>
+												</div>
+												<div class="col-md-2">
+													<div class="form-group">
+														<label>Region</label>
+														<input readonly type="text" class="form-control"
+															name="father-region" value="{{parent.region|upper}}">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-3">
+													<div class="form-group">
+														<label><i class="dw dw-phone-call"></i> Home</label>
+														<input readonly type="text" class="form-control"
+															name="father-tel-home" value="{{parent.tel_home}}">
+													</div>
+												</div>
+												<div class="col-md-3">
+													<div class="form-group">
+														<label><i class="dw dw-phone-call"></i> Office</label>
+														<input readonly type="text" class="form-control"
+															name="father-tel-office" value="{{parent.tel_office}}">
+													</div>
+												</div>
+												<div class="col-md-3">
+													<div class="form-group">
+														<label>Mob</label>
+														<input readonly type="text" class="form-control"
+															name="father-mob" value="{{parent.mob}}">
+													</div>
+												</div>
+												<div class="col-md-3">
+													<div class="form-group">
+														<label>Postal Address</label>
+														<input readonly type="text" class="form-control"
+															name="father-postal-address"
+															value="{{parent.postal_address|upper}}">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col">
+													<div class="form-group">
+														<label>Occupation</label>
+														<input readonly type="text" class="form-control"
+															name="father-occupation" value="{{parent.occupation|upper}}">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Nationality </label>
+														<input readonly type="text" class="form-control"
+															value="{{parent.nationality|upper}}">
+													</div>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Tribe</label>
+														<input readonly type="text" class="form-control"
+															name="father-tribe" value="{{parent.tribe|upper}}">
+													</div>
+												</div>
+											</div>
+											<div class="row">
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Religion</label>
+														<input readonly type="text" class="form-control"
+															name="father-religion" value="{{parent.religion|upper}}">
+													</div>
+												</div>
+												<div class="col-md-6">
+													<div class="form-group">
+														<label>Denomination</label>
+														<input readonly type="text" class="form-control"
+															name="father-denomination" value="{{parent.denomination|upper}}">
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+									<h5 class="text-uppercase">Immediate Contacts:</h5>
+									<hr>
+									{% for contact in s_user.contact_set.all %}
+									<div class="mb-30">
+										<h5>{% if contact.for_emergency %}Emergence Calls{% endif %}
+											{% if contact.for_payment %}Who is responsible for
+											the child /pupil’s school payments?{% endif %}</h5>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="form-group">
+													<label> Name :</label>
+													<input readonly type="text" class="form-control"
+														name="emergence-name" value="{{contact.name|upper}}">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label>Relation with Child :</label>
+													<input readonly type="text" class="form-control"
+														name="emergence-relation" value="{{contact.relationupper}}">
+												</div>
+											</div>
+										</div>
+										<div class="row">
+											<div class="col-md-6">
+												<div class="form-group">
+													<label>Contact Address</label>
+													<input readonly type="text" class="form-control"
+														name="emergence-address" value="{{contact.address|upper}}">
+												</div>
+											</div>
+											<div class="col-md-6">
+												<div class="form-group">
+													<label>Mobile No.</label>
+													<input readonly type="text" class="form-control"
+														name="emergence-mob" value="{{contact.tel}}">
+												</div>
+											</div>
+										</div>
+									</div>
+									{% endfor %}
+								</section>
+							</div>
+						</div>
+						<!-- First Term Report Tab End -->
+						<!-- First Term Report Tab start -->
+						<div class="tab-pane fade" id="report" role="tabpanel">
+							<div class="pd-0">
+								<div class="m-1 mb-4 border rounded-lg  bg-primary">
+									<div class="table-responsive">
+										<h5 class="text-white text-center pd-10">1<sup>st</sup> term</h5>
+										<table class=" table hover  nowrap" style="color: white;">
+											<thead>
+												<tr>
+													<th>Subject</th>
+													<th>Monthly</th>
+													<th>Mid-Term</th>
+													<th>Monthly</th>
+													<th>Terminal</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for key,value in pupil_report_st.subject_exam_marks_list_st.items %}
+												<tr data-href="#" style="background-color: {% cycle '#6858f8' '' %};">
+
+													<td class="text-uppercase">{{key}}</td>
+													<td><span
+															class=" badge {% cycle 'badge-success'  'badge-warning' 'badge-primary'  %} ">{{value.0.marks}}</span>
+													</td>
+													<td><span
+															class=" badge {% cycle  'badge-success'  'badge-warning' 'badge-primary' %} ">{{value.1.marks}}</span>
+													</td>
+													<td><span
+															class=" badge {% cycle 'badge-success'  'badge-warning' 'badge-primary'  %} ">{{value.2.marks}}</span>
+													</td>
+													<td><span
+															class=" badge {% cycle 'badge-success'  'badge-warning' 'badge-primary'  %} ">{{value.3.marks}}</span>
+													</td>
+
+
+												</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+								<div class="m-1 border rounded-lg  bg-warning">
+									<div class="table-responsive">
+										<h5 class="text-primary text-center pd-10">2<sup>nd</sup> term</h5>
+										<table class=" table hover  nowrap ">
+											<thead>
+												<tr>
+													<th>Subject</th>
+													<th>Monthly</th>
+													<th>Mid-Term</th>
+													<th>Monthly</th>
+													<th>Annual</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for key,value in pupil_report_nd.subject_exam_marks_list_nd.items %}
+												<tr data-href="#"
+													style="background-color:{% cycle '#f3d781' '#ffc107' %};">
+
+													<td class="text-uppercase">{{key}}</td>
+													<td><span
+															class=" badge {% cycle 'badge-primary' 'badge-secondary' 'badge-success' 'badge-danger' 'badge-warning'  %} ">{{value.0.marks}}</span>
+													</td>
+													<td><span
+															class=" badge {% cycle 'badge-primary' 'badge-success' 'badge-secondary' 'badge-danger' 'badge-warning'  %} ">{{value.1.marks}}</span>
+													</td>
+													<td><span
+															class=" badge {% cycle 'badge-primary' 'badge-secondary' 'badge-success' 'badge-danger' 'badge-warning'  %} ">{{value.2.marks}}</span>
+													</td>
+													<td><span
+															class=" badge {% cycle 'badge-primary' 'badge-secondary' 'badge-success' 'badge-danger' 'badge-warning'  %} ">{{value.3.marks}}</span>
+													</td>
+
+
+												</tr>
+												{% endfor %}
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- First Term Report Tab End -->
+						<!-- Fees Tab start -->
+						<div class="tab-pane fade " id="fees" role="tabpanel">
+							<div class="pd-0 profile-task-wrap">
+								<div class="container pd-0">
+									<div class="task-title row align-items-center pd-10">
+										<div class="col-md-8 col-sm-8 col-8">
+											<h5>Transactions ({{p_acc.count}})</h5>
+										</div>
+										<div class="col-md-4 col-sm-4 col-4 text-right">
+											<a href="{% url 'journal' 'transport-fees' %}"
+												class="bg-light-blue btn text-blue weight-500"><i
+													class="ion-plus-round"></i> Add</a>
+										</div>
+									</div>
+									<div class="table-responsive">
+										<table class=" table hover table-striped nowrap">
+											<thead>
+												<tr>
+													<th>Date</th>
+													<th>Description</th>
+													<th>General Ledger </th>
+													<th>DR</th>
+													<th>CR</th>
+													<th>Balance</th>
+												</tr>
+											</thead>
+											<tbody>
+												{% for transaction in p_acc %}
+												<tr>
+													<td class="table-plus">{{transaction.date}}</td>
+													<td>{% if transaction.description %}{{transaction.description}}{% else %}-{% endif %}
+													</td>
+													<td>{% if transaction.acc_no != customer_acc %}{{transaction.acc_no}}{% elif transaction.acc_no == customer_acc %}{{transaction.bal_acc_no}}{% endif %}
+													</td>
+													<td>{% if transaction.acc_no != customer_acc %}<span
+															class="badge badge-warning">{{transaction.amount|intcomma}}</span>{% endif %}
+													</td>
+													<td>{% if transaction.acc_no == customer_acc %}<span
+															class="badge badge-warning">{{transaction.amount|intcomma}}</span>{% endif %}
+													</td>
+													<td><span
+															class="badge badge-primary">{% mybalance p_acc customer_acc transaction %}</span>
+													</td>
+												</tr>
+												{% endfor %}
+											<tfoot>
+												<td colspan="3" class="text-center"><span class="h3">Total</span></td>
+												<td><span
+														class="badge badge-success">{% mydr_sum p_acc customer_acc %}</span>
+												</td>
+												<td><span
+														class="badge badge-success">{% mycr_sum p_acc customer_acc %}</span>
+												</td>
+											</tfoot>
+											</tbody>
+										</table>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Fees Tab End -->
+						{% else %}
+						<!-- Tasks Tab start -->
+						<div class="tab-pane fade show active" id="tasks" role="tabpanel">
+							<div class="pd-20 profile-task-wrap">
+								<div class="container pd-0">
+									<!-- Open Task start -->
+									<div class="task-title row align-items-center">
+										<div class="col-md-8 col-sm-12">
+											<h5>Open Tasks (4 Left)</h5>
+										</div>
+										<div class="col-md-4 col-sm-12 text-right">
+											<a href="task-add" data-toggle="modal" data-target="#task-add"
+												class="bg-light-blue btn text-blue weight-500"><i
+													class="ion-plus-round"></i> Add</a>
+										</div>
+									</div>
+									<div class="profile-task-list pb-30">
+										<ul>
+											{% for task in tasks %}
+											{% if task.is_closed == False %}
+											<li>
+												<div class="custom-control custom-checkbox mb-5">
+													<input type="checkbox" class="custom-control-input" id="task-1">
+													<label class="custom-control-label" for="task-1"></label>
+												</div>
+												<div class="task-type">{{task.task_type}}</div>
+												{{task.task}}
+												<div class="task-assign">{{task.teacher.employee.user.get_fullname}}
+													<div class="due-date">
+														due date <span>{{task.due_date}}</span></div>
+												</div>
+											</li>
+											{% endif %}
+											{% endfor %}
+
+										</ul>
+									</div>
+									<!-- Open Task End -->
+									<!-- Close Task start -->
+									<div class="task-title row align-items-center">
+										<div class="col-md-12 col-sm-12">
+											<h5>Closed Tasks</h5>
+										</div>
+									</div>
+									<div class="profile-task-list close-tasks">
+										<ul>
+											{% for task in tasks %}
+											{% if task.is_closed %}
+											<li>
+												<div class="custom-control custom-checkbox mb-5">
+													<input type="checkbox" class="custom-control-input"
+														id="task-close-1" checked="" disabled="">
+													<label class="custom-control-label" for="task-close-1"></label>
+												</div>
+												<div class="task-type">{{task.task_type}}</div>
+												{{task.task}}
+												<div class="task-assign">{{task.teacher.employee.user.get_fullname}}
+													<div class="due-date">
+														due date <span>{{task.due_date}}</span></div>
+												</div>
+
+											</li>
+											{% endif %}
+											{% endfor %}
+
+
+										</ul>
+									</div>
+									<!-- Close Task start -->
+									<!-- add task popup start -->
+									<div class="modal fade customscroll" id="task-add" tabindex="-1" role="dialog">
+										<div class="modal-dialog modal-dialog-centered" role="document">
+											<div class="modal-content">
+												<form method="POST">{% csrf_token %}
+													<div class="modal-header">
+														<h5 class="modal-title" id="exampleModalLongTitle">Tasks Add
+														</h5>
+														<button type="button" class="close" data-dismiss="modal"
+															aria-label="Close" data-toggle="tooltip"
+															data-placement="bottom" title=""
+															data-original-title="Close Modal">
+															<span aria-hidden="true">&times;</span>
+														</button>
+													</div>
+													<div class="modal-body pd-0">
+														<div class="task-list-form">
+															<ul id="task-list-form">
+																<li>
+																	<div class="form-group row">
+																		<label class="col-md-4">Task Type</label>
+																		<div class="col-md-8">
+																			<input type="text" class="form-control"
+																				name="task-type">
+																		</div>
+																	</div>
+																	<div class="form-group row">
+																		<label class="col-md-4">Task Message</label>
+																		<div class="col-md-8">
+																			<textarea class="form-control"
+																				name="task-msg"></textarea>
+																		</div>
+																	</div>
+																	<div class="form-group row">
+																		<label class="col-md-4">Assigned to</label>
+																		<div class="col-md-8">
+																			<select class="selectpicker form-control"
+																				data-style="btn-outline-primary"
+																				title="Not Chosen" multiple=""
+																				data-selected-text-format="count"
+																				data-count-selected-text="{0} people selected"
+																				name="teacher">
+																				{% for teacher in teacher_list %}
+																				<option
+																					value="{{teacher.employee.user.username}}">
+																					{{teacher.employee.user.get_fullname}}
+																				</option>
+																				{% endfor%}
+																			</select>
+																		</div>
+																	</div>
+																	<div class="form-group row mb-0">
+																		<label class="col-md-4">Due Date</label>
+																		<div class="col-md-8">
+																			<input type="text"
+																				class="form-control datetimepicker"
+																				name="due-date">
+																		</div>
+																	</div>
+
+																</li>
+															</ul>
+														</div>
+													</div>
+													<div class="modal-footer">
+														<button type="submit" class="btn btn-primary"
+															name="task">Add</button>
+														<button type="button" class="btn btn-secondary"
+															data-dismiss="modal">Close</button>
+													</div>
+												</form>
+											</div>
+										</div>
+									</div>
+									<!-- add task popup End -->
+								</div>
+							</div>
+						</div>
+						<!-- Tasks Tab End -->
+
+						<!-- Setting Tab start -->
+						<div class="tab-pane fade height-100-p" id="setting" role="tabpanel">
+							<div class="profile-setting">
+								<form>
+									<ul class="profile-edit-list row">
+										<li class="weight-500 col-md-6">
+											<h4 class="text-blue h5 mb-20">Class Teaching</h4>
+											{% for class in class_list %}
+											<div class="form-group">
+												<label for="">{{class}}</label>
+												<select class="custom-select2 form-control" multiple="multiple"
+													style="width: 100%;" name="{{class}}-subjects">
+
+													{% if class.subject_set.all.count != 0 %}
+													{% for subject in subject_list %}
+													<option value="{{subject}}"
+														{% if subject in class.subject_set.all %}selected{% endif %}>
+														{{subject}}</option>
+													{% endfor %}
+													{% else %}
+													{% for subject in subject_list %}
+													<option value="{{subject}}" selected>
+														{{subject}}</option>
+													{% endfor %}
+													{% endif %}
+
+												</select>
+											</div>
+											{% endfor %}
+											<div class="form-group">
+												<label>Email</label>
+												<input class="form-control form-control-lg" type="email"
+													value="{{s_user.email}}">
+											</div>
+											<div class="form-group">
+												<label>Date of birth</label>
+												<input class="form-control form-control-lg date-picker"
+													type="{{s_user.birth_date}}">
+											</div>
+											<div class="form-group">
+												<label>Gender</label>
+												<div class="d-flex">
+													<div class="custom-control custom-radio mb-5 mr-20">
+														<input type="radio" id="customRadio4" name="customRadio"
+															class="custom-control-input" {% if s_user.sex == 'male' %}
+															checked {% endif %}>
+														<label class="custom-control-label weight-400"
+															for="customRadio4">Male</label>
+													</div>
+													<div class="custom-control custom-radio mb-5">
+														<input type="radio" id="customRadio5" name="customRadio"
+															class="custom-control-input" {% if s_user.sex == 'female' %}
+															checked {% endif %}>
+														<label class="custom-control-label weight-400"
+															for="customRadio5">Female</label>
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<label>Country</label>
+												<select class="selectpicker form-control form-control-lg"
+													data-style="btn-outline-secondary btn-lg" title="Not Chosen">
+													<option>United States</option>
+													<option>India</option>
+													<option>United Kingdom</option>
+												</select>
+											</div>
+											<div class="form-group">
+												<label>State/Province/Region</label>
+												<input class="form-control form-control-lg" type="text">
+											</div>
+											<div class="form-group">
+												<label>Postal Code</label>
+												<input class="form-control form-control-lg" type="text">
+											</div>
+											<div class="form-group">
+												<label>Phone Number</label>
+												<input class="form-control form-control-lg" type="text">
+											</div>
+											<div class="form-group">
+												<label>Address</label>
+												<textarea class="form-control"></textarea>
+											</div>
+											<div class="form-group">
+												<label>Visa Card Number</label>
+												<input class="form-control form-control-lg" type="text">
+											</div>
+											<div class="form-group">
+												<label>Paypal ID</label>
+												<input class="form-control form-control-lg" type="text">
+											</div>
+											<div class="form-group">
+												<div class="custom-control custom-checkbox mb-5">
+													<input type="checkbox" class="custom-control-input"
+														id="customCheck1-1">
+													<label class="custom-control-label weight-400"
+														for="customCheck1-1">I agree to receive notification
+														emails</label>
+												</div>
+											</div>
+											<div class="form-group mb-0">
+												<input type="submit" class="btn btn-primary" value="Update Information">
+											</div>
+										</li>
+										<li class="weight-500 col-md-6">
+											<h4 class="text-blue h5 mb-20">Edit Social Media links</h4>
+											<div class="form-group">
+												<label>Facebook URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Twitter URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Linkedin URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Instagram URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Dribbble URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Dropbox URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Google-plus URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Pinterest URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Skype URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group">
+												<label>Vine URL:</label>
+												<input class="form-control form-control-lg" type="text"
+													placeholder="Paste your link here">
+											</div>
+											<div class="form-group mb-0">
+												<input type="submit" class="btn btn-primary" value="Save & Update">
+											</div>
+										</li>
+									</ul>
+								</form>
+							</div>
+						</div>
+						<!-- Setting Tab End -->
+						{% endif %}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}{% block scripts %}
+<!-- image cropper -->
+<script src="{% static 'pris/src/plugins/cropperjs/dist/cropper.min.js' %}"></script>
+<!-- switchery js -->
+<script src="{% static 'pris/src/plugins/switchery/switchery.min.js' %}"></script>
+<script src="{% static 'pris/vendors/scripts/advanced-components.js' %}"></script>
+<script>
+
+	window.addEventListener( 'DOMContentLoaded', function () {
+		var image = document.getElementById( 'image' );
+		var cropBoxData;
+		var canvasData;
+		var cropper;
+
+		$( '#modal' ).on( 'shown.bs.modal', function () {
+			cropper = new Cropper( image, {
+				autoCropArea: 0.5,
+				dragMode: 'move',
+				aspectRatio: 3 / 3,
+				restore: false,
+				guides: false,
+				center: false,
+				highlight: false,
+				cropBoxMovable: false,
+				cropBoxResizable: false,
+				toggleDragModeOnDblclick: false,
+				ready: function () {
+
+					cropper.setCropBoxData( cropBoxData ).setCanvasData( canvasData );
+					cropBoxData = cropper.getCropBoxData();
+					cropData = cropper.getCroppedCanvas();
+					canvasData = cropper.getCanvasData();
+					// cropper.destroy();
+
+				}
+
+			} );
+
+			// .on( 'hidden.bs.modal', function () {
+			// 	cropBoxData = cropper.getCropBoxData();
+			// 	canvasData = cropper.getCanvasData();
+			// 	cropper.destroy();
+			// } );
+			// On crop button clicked
+			document.getElementById( 'crop_button' ).addEventListener( 'click', function () {
+
+				var imgurl = cropper.getCroppedCanvas().toDataURL();
+				var img = document.createElement( "img" );
+				img.src = imgurl;
+				document.getElementById( "cropped_result" ).appendChild( img );
+				// cropData = cropper.getCroppedCanvas();
+				var cropData = cropper.getData();
+				$( "#id_x" ).val( cropData[ "x" ] );
+				$( "#id_y" ).val( cropData[ "y" ] );
+				$( "#id_height" ).val( cropData[ "height" ] );
+				$( "#id_width" ).val( cropData[ "width" ] );
+				// $( '#me' ).val( cropData[ 'width' ] )
+				$( '#formUpload' ).submit();
+			} );
+
+		} )
+		// $( ".js-crop-and-upload" ).click( function () {
+		// 	var cropData = $('#image').cropper( "getData" );
+		// 	$( "#id_x" ).val( cropData[ "x" ] );
+		// 	$( "#id_y" ).val( cropData[ "y" ] );
+		// 	$( "#id_height" ).val( cropData[ "height" ] );
+		// 	$( "#id_width" ).val( cropData[ "width" ] );
+		// 	$( "#formUpload" ).submit();
+		// } );
+	} );
+	$( '#success-modal' ).modal( 'show' );
+
+</script>
+<script>
+	$( document ).ready( function () {
+		// $( '#me' ).val( cropBoxData )
+
+		var max_fields = 10; //maximum input boxes allowed
+		var wrapper = $( "#task-list-form" ); //Fields wrapper
+		var add_button = $( "#add-more-task" ); //Add button ID
+		var task = $( '#task3' );
+		var x = 1; //initlal text box count
+		$( add_button ).click( function ( e ) { //on add input button click
+			e.preventDefault(); //max input box allowed
+			x++; //text box increment
+			$( wrapper ).append( task ); //add input box
+
+		} );
+
+		$( wrapper ).on( "click", ".remove-task", function ( e ) { //user click on remove text
+			e.preventDefault(); $( this ).parent( 'li' ).remove(); x--;
+		} );
+
+		$( '#checker' ).change( function () {
+			var checker;
+			if ( $( this ).is( ":checked" ) ) {
+				checker = "active";
+			}
+			else {
+				checker = "inactive"
+			}
+			$.ajax( {                       // initialize an AJAX request
+				url: "{% url 'profile' s_user %}",                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+				data: {
+					'checker': checker      // add the country id to the GET parameters
+				},
+				success: function ( data ) {   // `data` is the return of the `load_cities` view function
+					$( "#badge" ).html( data );	// replace the contents of the city input with the data that came from the server
+				}
+			} );
+
+		} )
+	} );
+</script>
+{% endblock %}

@@ -1,0 +1,271 @@
+{% load static %}{% load mytags %}{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ACADEMIC PROGRESSIVE REPORT </title>
+        <style>
+            body {
+                font-weight: 200;
+                font-size: 14px;
+            }
+
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+            }
+
+            .title {
+                font-size: 22px;
+                font-weight: 200;
+                /* text-align: right;*/
+                padding: 20px 20px 0px 20px;
+                margin: 0;
+            }
+
+            /* .title span {
+                color: #007cae;
+            } */
+
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+
+            }
+
+            .hrItem {
+                border: none;
+                height: 1px;
+                padding: 0;
+                margin: 0;
+                /* Set the hr color */
+                color: #333;
+                /* old IE */
+                background-color: #fff;
+                /* Modern Browsers */
+            }
+
+            img {
+                zoom: 40%;
+                margin: auto;
+            }
+
+            #results {
+                border: 1px solid gray;
+            }
+
+            #results td {
+                height: 31px;
+                font-size: larger;
+            }
+            #results thead th {
+                padding:3px;
+            }
+            .subject {
+                /* word-wrap: break-word; */
+                padding:3px;
+                width: 140px;
+            }
+
+            #intro {
+                padding: 3px;
+            }
+
+            #intro td {
+                text-align: end;
+                
+            }
+
+            .marks {
+                text-align: center;
+                padding: 3px;
+                width: 100px;
+                height: 20px;
+            }
+
+            .comments {
+                width: 150px;
+                padding: 3px;
+                text-align: center;
+            }
+
+            #grade {
+                width: 50%;
+                border: 1px solid gray;
+                margin: 0;
+
+            }
+
+            #grade td {
+                height: 31px;
+                padding: 4px;
+                text-align: center;
+            }
+
+            .total-average {
+                border: 1px solid gray;
+                width: 91px;
+                height: 31px;
+                padding: 3px;
+                text-align: center;
+            }
+
+            .total-average-no-border {
+                width: 91px;
+                height: 31px;
+            }
+
+            .total-average-intro {
+                border: 1px solid gray;
+                width: 127px;
+                height: 31px;
+                padding: 3px;
+            }
+            
+            .recommendations {
+                width: 900px;
+                height: 300px;
+                border: 1px solid gray;
+                margin-top: 20px;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        {% for i in report_list|dictsortreversed:'exam_last_sum' %}
+        <div class='wrapper'>
+            <div class='header'>
+                <img src="C:\Users\public.DESKTOP-2IG0C8O\Desktop\malenproject\malenproject\director\static\director\img\malenlogo.jpg"
+                    alt="">
+                <!-- <img src="{% static 'pris/malenlogo.jpg' %}" height="150" width="150" alt=""> -->
+                <h1 class='title'>
+                    MALEN PRE AND PRIMARY SCHOOL<br>
+                    <span style="font-size:14px;">P.O.Box: 17143 Dar es Salaam, Tel: +255 685 135 324 / +255 768 185 858
+                        <br>
+                        Email: malenschools@gmail.com</span>
+                    <br><strong><span style="text-transform: uppercase;">{{term|unslugify|upper}}</span> ACADEMIC
+                        PROGRESSIVE REPORT {{year}}</strong></h1>
+            </div>
+            <hr class='hrItem' />
+            <div class='details'>
+                <table id="intro">
+                    <tr>
+                        <td style="width: 50%;">Pupil's Name: <strong>{{i.pupil.user.get_fullname|upper}}</strong></td>
+                        <td style="width: 25%;">Class: <strong>{{i.pupil.myclass}}</strong></td>
+                        <td style="width: 25%;"> Rank: <u><strong>{{forloop.counter}}</strong></u> out of
+                            <u><strong>{{pupils|length}}</strong></u></td>
+                    </tr>
+                </table>
+                <table id="results">
+                    <thead>
+                        <tr>
+                            <th>SUBJECT</th>
+                            <th>MID-TERM</th>
+                            <th>{% if term == 'first-term' %}TERMINAL{% else %}ANNUAL{% endif %}</th>
+                            <th>TOTAL</th>
+                            <th>GRADE</th>
+                            <th>TEACHER'S COMMENTS</th>
+                            <th>SIGNATURE</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key,value in i.subject_exam_marks_list.items %}
+                        <tr>
+                            <td class="subject">{{key|slugify|shortsubject|upper}}</td>
+                            <td class="marks">{{value.0}}</td>
+                            <td class="marks">{{value.1}}</td>
+                            <td class="marks">{{value.2}}</td>
+                            <td class="marks">{% if value.1 < 35 %} F{% elif value.1 < 50 %} D{% elif value.1 < 65 %} C{% elif value.1 < 85 %} B{% else %} A{% endif %}</td>
+                            <td class="comments">{% if value.1 < 35 %} Fail{% elif value.1 < 50 %} Poor{% elif value.1 < 65 %} Fair{% elif value.1 < 85 %} V.Good{% else %}Excellent{% endif %}</td>
+                            <td class="marks"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <table>
+                    <tr>
+                        <!-- <td style=" width: 127px; height: 31px;"> </td> -->
+                        <td class="total-average-intro"><strong>TOTAL</strong></td>
+                        <td class="total-average">{{i.exam_first_sum}}</td>
+                        <td class="total-average">{{i.exam_last_sum}}</td>
+                        <td class="total-average-no-border"></td>
+                        <td></td>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <!-- <td style=" width: 127px; height: 31px;"> </td> -->
+                        <td class="total-average-intro"> <strong>AVERAGE</strong></td>
+                        <td class="total-average"> {{i.exam_first_avg}} %</td>
+                        <td class="total-average"> {{i.exam_last_avg}} %</td>
+                        <td class="total-average-no-border"> </td>
+                        <td class="total-average"><strong>{% if i.exam_last_avg < 35 %} F{% elif i.exam_last_avg < 50 %} D{% elif i.exam_last_avg < 65 %} C{% elif i.exam_last_avg < 85 %} B{% else %}A{% endif %}</strong></td>
+                        <td colspan="2"></td>
+                    </tr>
+                </table>
+                <strong>KEY</strong>
+                <table id="grade">
+                    <tr>
+                        <td>National Grades</td>
+                        <td>100 - 81, A</td>
+                        <td>80 - 61, B</td>
+                        <td>60 - 41, C</td>
+                        <td>40 - 21, D</td>
+                        <td>20 - 0, F</td>
+                    </tr>
+                    <tr>
+                        <td>School Grades</td>
+                        <td>100 - 85, A</td>
+                        <td>84 - 65, B</td>
+                        <td>64 - 50, C</td>
+                        <td>49 - 35, D</td>
+                        <td>34 - 0, F</td>
+                    </tr>
+
+                </table>
+                <table>
+                    <tr>
+                        <td>
+                            <div class="recommendations">
+                                <small>
+                                    <strong>Class Teacher's
+                                        comment:</strong><br>{% if i.rec_ct is not None %}{{i.rec_ct.recommendation}}{% else %} {% endif %}<br><strong>Signature
+                                        :</strong></div></small>
+                        </td>
+                        <td>
+                            <div class="recommendations">
+                                <small>
+                                    <strong>Academic Teacher's
+                                        comment:</strong><br>{% if i.rec_ac is not None %}{{i.rec_ac.recommendation}}{% else %} {% endif %}<br><strong>Signature
+                                        :</strong></div></small>
+                        </td>
+                    </tr>
+                </table>
+                <strong>Head of school signature and stamp:</strong>
+                <hr class="hrItem">
+                <strong>SCHOOL BANK ACCOUNT: <br> A/C NO. 0150307139400 <br> A/C NAME: MALEN PRE AND PRIMARY
+                    SCHOOL</strong><br>
+
+
+                <table style="padding: 0;">
+                    <tr>
+                        <td style="text-align: center;">Lipa ada TZS: <strong>{% if i.debt != None %}{{i.debt|intcomma}}{% else %} {% endif %}</strong></td>
+                        <td style="text-align: center;">Kabla ya Tar:
+                            <strong>{% if closing_period != None %}{{closing_period.end_date|date:'j M Y'}}{% else%} {% endif %}</strong></td>
+                </table>
+
+                <div style="text-align: center;"> School closed on <strong>{% if closing_period != None %}{{closing_period.start_date|date:'j M Y'}}{% else%} {% endif %}**</strong> and will
+                    open on
+                    <strong>{% if closing_period != None %}{{closing_period.end_date|date:'j M Y'}}{% else%} {% endif %}**</strong></div>
+
+            </div>
+        </div>
+        {% endfor %}
+        <pdf:nextpage />
+    </body>
+
+</html>

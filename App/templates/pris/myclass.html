@@ -1,0 +1,30 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}
+{% block main %}
+<div class="tab">
+	<div class="mb-30 card-box pd-10">
+		<div class="row text-center">
+			<ul class="nav nav-pills pd-10 " role="tablist">
+				{% for class in class_list %}
+				<li class="nav-item">
+					<a class="nav-link {% if forloop.counter == 1 %} active {% endif %} text-capitalize"
+						data-toggle="tab" href="#class{{forloop.counter|numb2words}}" role="tab"
+						aria-selected="true">{{class.name}}</a>
+				</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</div>
+
+	<div class="mb-30 card-box">
+		<div class="tab-content">
+			{% for class in class_list %}
+			<div class="tab-pane fade {% if forloop.counter == 1 %} show active {% endif %}"
+				id="class{{forloop.counter|numb2words}}" role="tabpanel">
+				hey
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endblock %}

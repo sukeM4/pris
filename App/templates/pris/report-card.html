@@ -1,0 +1,193 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}
+{% block styles %}
+
+{% endblock %}
+{% block main %}
+{% if report_list|length > 0 %}
+<div class="row">
+	<div class="col-2">
+		<div class="pd-20 ">
+			<div class="dt-checkbox">
+				<input type="checkbox" class="custom-control-input" id="check-all">
+				<span class="dt-checkbox-label" for="check-all"></span>
+			</div>
+		</div>
+	</div>
+	{% if user.is_superuser or user.is_it%}
+	<div class="col-10">
+		<div class="pd-20 text-right">
+			<a href="{% url 'report-card-pdf' year myclass term %}" class="btn btn-primary btn-sm shadow">
+				Generate Progressive Report
+			</a>
+		</div>
+	</div>
+	{% endif %}
+</div>
+<form action="" method="post">{% csrf_token %}
+	<div class="mb-30 card-box pd-10">
+		<div class="row">
+			<div class="col-md-2 xs-mb-20">
+				<select class="selectpicker form-control" name="year">
+					<optgroup label="Academic Year">
+						{% for year in years %}
+						<option value="{{year}}" {% if year == now %}selected{% endif %}>{{year}}</option>
+						{% endfor %}
+					</optgroup>
+				</select>
+			</div>
+			<div class="col-md-4 xs-mb-20">
+				<select class="selectpicker form-control" name="term">
+
+					<optgroup label="Terms">
+						<option value="first-term" {% if term == 'first-term' %}selected{% endif %}>First Term</option>
+						<option value="second-term" {% if term == 'second-term' %}selected{% endif %}>Second Term
+						</option>
+					</optgroup>
+				</select>
+			</div>
+			<div class="col-md-6 col-sm-12 ">
+				<div class="row">
+					<div class="col-md-10 xs-mb-20">
+						<select class="selectpicker form-control" data-style="btn-outline-primary" data-size="5"
+							name="myclass">
+							{% for grade_level in grade_levels %}
+							<optgroup label="{{grade_level}}" data-max-options="2">
+								{% if grade_level %}
+								{% for class in grade_level.myclass_set.all %}
+								<option value="{{class}}" {% if myclass == class %}selected{% endif %}>{{class}}
+								</option>
+								{% endfor %}
+								{% endif %}
+							</optgroup>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="col-md-2 col-sm-12 ">
+						<button type="submit" name="get-class-year" class=" btn  btn-primary  btn-block ">
+							<i class="icon-copy dw dw-download1"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+{% else %}
+<p>None of exams is recorded!</p>
+{% endif %}
+<form action="" method="post">{% csrf_token %}
+	{% for i in report_list %}
+	<div class="mb-30 card-box pt-20 pb-20">
+		<div class="row ">
+			<!-- <div class="col-1">
+				<div class="pd-20 ">
+					<div class="dt-checkbox">
+						<input type="checkbox" class="custom-control-input" id="post{{i.pk}}">
+						<span class="dt-checkbox-label" for="post{{i.pupil.pk}}"></span>
+					</div>
+				</div>
+			</div> -->
+			<div class="col-11 ">
+				<div class="pd-20 text-center">
+					<h4 class="h4">
+						{{i.pupil.user.get_fullname|upper}}
+					</h4>
+				</div>
+
+			</div>
+		</div>
+		<div class="table-responsive">
+			<table class=" table hover nowrap">
+				<thead>
+					<tr>
+						<th>Subject</th>
+						<th>Monthly</th>
+						<th>Mid-Term</th>
+						<th>Monthly</th>
+						<th>{% if term == 'first-term' %}Terminal{% else %}Annual{% endif %}</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for key,value in i.subject_exam_marks_list.items %}
+					<tr class="h-50">
+
+						<td class="text-uppercase">{{key}}</td>
+						<td><span
+								class=" badge {% if value.0.marks < 35 %} badge-danger{% elif value.0.marks < 50 %} badge-warning{% elif value.0.marks < 65 %} badge-secondary{% elif value.0.marks < 85 %} badge-success{% else %} badge-primary{% endif %} ">{{value.0.marks}}</span>
+						</td>
+						<td><span
+								class=" badge {% if value.1.marks < 35 %} badge-danger{% elif value.1.marks < 50 %} badge-warning{% elif value.1.marks < 65 %} badge-secondary{% elif value.1.marks < 85 %} badge-success{% else %} badge-primary{% endif %} ">{{value.1.marks}}</span>
+						</td>
+						<td><span
+								class=" badge {% if value.2.marks < 35 %} badge-danger{% elif value.2.marks < 50 %} badge-warning{% elif value.2.marks < 65 %} badge-secondary{% elif value.2.marks < 85 %} badge-success{% else %} badge-primary{% endif %} ">{{value.2.marks}}</span>
+						</td>
+						<td><span
+								class=" badge {% if value.3.marks < 35 %} badge-danger{% elif value.3.marks < 50 %} badge-warning{% elif value.3.marks < 65 %} badge-secondary{% elif value.3.marks < 85 %} badge-success{% else %} badge-primary{% endif %} ">{{value.3.marks}}</span>
+						</td>
+
+
+					</tr>
+					{% endfor %}
+					{% if user.is_superuser or user.is_it %}
+					<tr><th>Acadedmic Teacher recommendation</th>
+						<td>
+
+							<input type="text" name="recommendation|{{i.pupil.pk}}|ac|{{term}}"
+								value="{{i.rec_ac.recommendation}}" class="form-control">
+						</td>
+						<td></td>
+						<th>Class Teacher recommendation</th>
+						<td>
+							<input type="text" name="recommendation|{{i.pupil.pk}}|ct|{{term}}" value="{{i.rec_ct.recommendation}}"
+								class="form-control">
+
+						</td>
+					</tr>
+					{% endif %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	{% endfor %}
+	<div class="card-box mb-30 p-1">
+		<div class="text-center m-3">
+			{% if user.is_superuser or user.is_it%}
+			{% if report_list|length > 0 %}
+			<button type="submit" class="btn btn-outline-primary" name="save" value="{{myclass}}">save</button>
+			{% endif %}
+			{% endif %}
+		</div>
+	</div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+
+<!-- masuke edit for clickable row -->
+<script>
+	jQuery( document ).ready( function ( $ ) {
+		$( ".clickable-row" ).click( function () {
+			window.location = $( this ).data( "href" );
+		} );
+
+		$( "#check-all" ).click( function () {
+			$( 'input:checkbox' ).not( this ).prop( 'checked', this.checked );
+		} );
+	} );
+</script>
+{% endblock %}

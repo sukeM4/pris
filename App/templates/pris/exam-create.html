@@ -1,0 +1,100 @@
+{% extends 'pris/base.html' %}
+{% load static %}
+{% block main %}
+<form action="" method="post">{% csrf_token %}
+	<div class="card-box pd-20 mb-30">
+		<h4 class="text-blue h4 mb-10">Exam Detail</h4>
+		<div class="row">
+			<div class="form-group col-md-4">
+				<label>Class</label>
+				<select class="selectpicker form-control" name="class" id="class-select">
+					{% if grade_levels %}
+					{% for grade_level in grade_levels %}
+					<optgroup label="{{grade_level}}" data-max-options="2">
+						{% if grade_level %}
+						{% for class in grade_level.myclass_set.all %}
+						<option value="{{class}}" {% if exam.myclass == class %}selected{% endif %}>
+							{{class}}
+						</option>
+						{% endfor %}
+						{% endif %}
+					</optgroup>
+					{% endfor %}
+					{% else %}
+					<optgroup label="CLASS">
+						<option value="">No class registered</option>
+					</optgroup>
+					{% endif %}
+				</select>
+			</div>
+
+			<div class="form-group col-md-3">
+				<label>Subject</label>
+				<select class="form-control selectpicker" name="subject">
+					{% for subject in subject_list %}
+					<option value="{{subject}}" {%if exam.subject == subject %}selected{% endif %}>{{subject}}</option>
+
+					{% endfor %}
+				</select>
+			</div>
+
+			<div class="form-group col-md-2">
+				<label>Exam Type</label>
+				<select class="form-control selectpicker" name="exam-type">
+					<option value="Mid-Term" {% if exam.exam_type == 'Mid-Term' %}selected{% endif %}>Mid-Term</option>
+					<option value="Annual" {% if exam.exam_type == 'Annual' %}selected{% endif %}>Annual</option>
+					<option value="Monthly" {% if exam.exam_type == 'Monthly' %}selected{% endif %}>Monthly</option>
+					<option value="Terminal" {% if exam.exam_type == 'Terminal' %}selected{% endif %}>Terminal</option>
+					<option value="Mock" {% if exam.exam_type == 'Mock' %}selected{% endif %}>Mock</option>
+					<option value="Necta" {% if exam.exam_type == 'Necta' %}selected{% endif %}>Necta</option>
+				</select>
+			</div>
+			<div class="form-group col-md-3">
+				<label>Exam Date</label>
+				<input type='text' class="date-picker form-control" name="date" autocomplete="off"
+					value="{% now 'j F Y'%}" data-placement="top">
+			</div>
+		</div>
+	</div>
+	<div class="text-center mb-30"><button type="submit" class="btn  btn-primary" name="exam-create">exit</button>
+
+	</div>
+</form>
+{% for i in doc %}
+<div class="card-box mb-30 pd-20">
+	<div class="row">
+			
+		{{i}}
+		<div class="col-md-3 col-sm-12"><input type="text" class="form-control m-auto"></div>
+	</div>
+</div>
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script>
+	$( document ).ready( function () {
+		var wrapper = $( "#box" ); //Fields wrapper
+		var add_qn = $( "#add-qn" ); //Add button ID
+		var add_section = $( "#add-section" ); //Add button ID
+		var task = $( '#task3' );
+		var x = 1; //initlal text box count
+		$( add_qn ).click( function ( e ) { //on add input button click
+			e.preventDefault(); //max input box allowed
+			x++; //text box increment
+			$( wrapper ).append( '<textarea class="textarea_editor form-control border-radius-0 h-25" placeholder="Enter Question ..."></textarea>' ); //add input box
+
+		} );
+		$( add_section ).click( function ( e ) { //on add input button click
+			e.preventDefault(); //max input box allowed
+			x++; //text box increment
+			$( '#exam-main' ).append( '<div class="html-editor pd-20 card-box mb-30" id="box"><h4 class= "h4 text-blue"> Section' + ( x ) + '</h4 ><textarea class="textarea_editor form-control border-radius-0 h-25" placeholder="Enter Question ..."></textarea><a href="#" id="add-qn" data-toggle="tooltip" data-placement="bottom" title="" data-original-title="Add Task" id="add-more-task"><i class="ion-plus-circled"></i> Add More Task</a></div >' ); //add input box
+
+		} );
+
+		$( wrapper ).on( "click", ".remove-task", function ( e ) { //user click on remove text
+			e.preventDefault(); $( this ).parent( 'div' ).remove(); x--;
+		} );
+
+	} );
+</script>
+{% endblock %}

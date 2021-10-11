@@ -1,0 +1,245 @@
+{% extends 'pris/base.html' %}
+{% load static %}
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'pris/src/plugins/jquery-steps/jquery.steps.css' %}">
+<link rel="stylesheet" type="text/css"
+	href="{% static 'pris/src/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css' %}">
+{% endblock %}
+{% block main %}
+<div class="mb-30 card-box pd-20">
+
+	<div class="clearfix pt-4 pl-4 pr-4">
+
+		<h4 class="text-blue h4">Employee Registartion Form</h4>
+
+	</div>
+
+	<form method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		<h5 class="mb-30 h5">Personal Particulars</h5>
+		<div class="row">
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>First Name :</label>
+					<input type="text" class="form-control" name="first-name" autocomplete="off" required>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Middle Name :</label>
+					<input type="text" class="form-control" name="middle-name" autocomplete="off">
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-group">
+					<label>Last Name :</label>
+					<input type="text" class="form-control" name="last-name" autocomplete="off" required>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-8">
+				<div class="form-group">
+					<label>Date of Birth :</label>
+					<input type="text" class="form-control date-picker" placeholder="Select Date" name="birth-date" autocomplete="off">
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="form-group">
+					<label class="">Sex :</label>
+					<div class="d-flex ">
+						<div class="custom-control custom-radio mb-5 mr-20">
+							<input type="radio" id="female" name="sex" class="custom-control-input" value="female"
+								checked>
+							<label class="custom-control-label weight-400" for="female">Female</label>
+						</div>
+						<div class="custom-control custom-radio mb-5">
+							<input type="radio" id="male" name="sex" class="custom-control-input" value="male">
+							<label class="custom-control-label weight-400" for="male">Male</label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col">
+				<div class="form-group">
+					<label>Job Description :</label>
+					<select id="desc" class="selectpicker form-control " name="category" required>
+						<option value="Teacher">Teacher</option>
+						<option value="Cook">Cook</option>
+						<option value="Driver">Driver</option>
+					</select>
+				</div>
+			</div>
+			<div class="col box Teacher">
+				<div class="form-group">
+					<label>Status :</label>
+					<select class="selectpicker form-control " name="TR-status">
+						<option value="HT">Head Teacher</option>
+						<option value="AC">Academic Teacher</option>
+						<option value="DC">Discipline Master</option>
+						<option value="CT">Class Teacher</option>
+						<option value="IT">IT</option>
+					</select>
+				</div>
+			</div>
+			<div class="col">
+				<div class="form-group">
+					<label>Date Admitted :</label>
+					<input type="text" class="form-control date-picker" placeholder="Select Date" name="date-employed" autocomplete="off"
+						required>
+				</div>
+			</div>
+		</div>
+		<hr>
+		<div class="row">
+			<div class="col-md">
+				<div class="form-group">
+					<label for="">Email</label>
+					<input type="email" class="form-control" name="email">
+				</div>
+			</div>
+			<div class="col-md">
+				<div class="form-group">
+					<label for="">Contacts</label><br>
+					<input type="text" class="form-control" name="contacts" data-role="tagsinput">
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-12">
+				<div class="form-group">
+					<label>Photo</label>
+					<input type="file" class="form-control-file form-control height-auto" name="photo">
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="custom-control custom-checkbox mb-5">
+					<input type="checkbox" class="custom-control-input" id="customCheck1" value="IT" name="is-IT">
+					<label class="custom-control-label" for="customCheck1">Is he/she eligible in storing
+						data?</label>
+				</div>
+			</div>
+		</div>
+		<div class="clearfix">
+			<div class="pull-right"><button type="submit" class="btn btn-primary">Save</button></div>
+		</div>
+	</form>
+
+</div>
+
+<!-- horizontal Basic Forms End -->
+
+
+{% for message in messages %}
+<!-- success Popup html Start -->
+<div class="modal fade" id="success-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+	aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-body text-center font-18">
+				<h3 class="mb-20">
+					{% if 'error' in message.tags %}Error{% elif 'success' in message.tags%}Success{% endif %}</h3>
+				<div class="mb-30 text-center">{% if 'error' in message.tags %}<img
+						src="{% static 'pris/vendors/images/cross.png' %}">{% elif 'success' in message.tags%}<img
+						src="{% static 'pris/vendors/images/success.png' %}">{% endif %}
+				</div>
+				{{message}}
+			</div>
+			<div class="modal-footer justify-content-center">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- success Popup html End -->
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/jquery-steps/jquery.steps.js' %}"></script>
+<script src="{% static 'pris/vendors/scripts/steps-setting.js' %}"></script>
+<!-- bootstrap-tagsinput js -->
+<script src="{% static 'pris/src/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js' %}"></script>
+<script src="{% static 'pris/vendors/scripts/advanced-components.js' %}"></script>
+
+<!-- <script src="{% static 'pris\src\plugins\jquery-validation-1.19.1\dist\jquery.validate.min.js' %}"></script>
+<script src="{% static 'pris\vendors\scripts\form-validation.js' %}"></script> -->
+
+<script>
+	jQuery( document ).ready( function ( $ ) {
+		$( "#desc" ).change( function () {
+			$( this ).find( "option:selected" ).each( function () {
+				var optionValue = $( this ).attr( "value" );
+				// document.getElementsByClassName('box').hide()
+				if ( optionValue ) {
+					$( ".box" ).not( "." + optionValue ).hide();
+					$( "." + optionValue ).show();
+				} else {
+					$( ".box" ).hide();
+				}
+			} );
+		} ).change();
+	} );
+	$( '#success-modal' ).modal( 'show' )
+	setTimeout( function () {
+		$( '#success-modal' ).modal( 'hide' );
+
+	},2000 );
+	$( document ).ready( function () {
+		var max_fields = 10; //maximum input boxes allowed
+		var wrapper = $( ".input_fields_wrap" ); //Fields wrapper
+		var add_button = $( ".add_field_button" ); //Add button ID
+
+		var x = 1; //initlal text box count
+		$( add_button ).click( function ( e ) { //on add input button click
+			e.preventDefault();
+			if ( x < max_fields ) { //max input box allowed
+				x++; //text box increment
+				$( wrapper ).append( '<div class="form-group row g"><div class="col-9"><input type="text" class="form-control" name="' + ( x ) + '" /></div ><button class="add_field_button btn btn-primary col-auto"><i class="dw dw-add"></i></button><a href="#" class="remove_field btn btn-primary col-auto"><i class="dw dw-delete"></i></a></div>' ); //add input box
+			}
+		} );
+
+		$( wrapper ).on( "click", ".remove_field", function ( e ) { //user click on remove text
+			e.preventDefault(); $( this ).parent( 'div' ).remove(); x--;
+		} );
+		$( ".tab-wizard3" ).steps( {
+			headerTag: "h5",
+			bodyTag: "section",
+			transitionEffect: "fade",
+			titleTemplate: '<span class="step">#index#</span> #title#',
+			labels: {
+				finish: "Submit",
+			},
+			onStepChanged: function ( event, currentIndex, priorIndex ) {
+				$( ".steps .current" ).prevAll().addClass( "disabled" );
+				var max_fields = 10; //maximum input boxes allowed
+				var wrapper = $( ".input_fields_wrap" ); //Fields wrapper
+				var add_button = $( ".add_field_button" ); //Add button ID
+
+				var x = 1;
+				$( add_button ).click( function ( e ) { //on add input button click
+					e.preventDefault();//max input box allowed
+					x++; //text box increment
+					$( wrapper ).append( '<div class="form-group row g"><div class="col-9"><input type="text" class="form-control" name="p' + ( x ) + '" /></div ><button class="add_field_button btn btn-primary col-auto"><i class="dw dw-add"></i></button><a href="#" class="remove_field btn btn-primary col-auto"><i class="dw dw-delete"></i></a></div>' ); //add input box
+
+				} );
+
+				$( wrapper ).on( "click", ".remove_field", function ( e ) { //user click on remove text
+					e.preventDefault(); $( this ).parent( 'div' ).remove(); x--;
+				} );
+				$( wrapper ).on( "click", ".add_field_button", function ( e ) { //user click on remove text
+					e.preventDefault(); $( this ).parent( 'div' ).add(); x++;
+				} );
+			},
+			onFinished: function ( event, currentIndex ) {
+				$( "#success-modal" ).modal( "show" );
+				var form = $( this );
+				// Submit form input
+				form.submit();
+			},
+		} );
+	} );
+</script>
+{% endblock %}

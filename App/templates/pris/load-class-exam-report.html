@@ -1,0 +1,101 @@
+{% load static %}
+
+
+{% if myclass %}
+<form action="" method="post" id="exam-select-form" data-url="{% url 'load-exam-report' %}">{% csrf_token %}
+    <!-- Simple Datatable start -->
+    <div class="card-box mb-30">
+        <div class=" clearfix" id="main">
+            <div class="pull-left pd-20">
+                <h4 class="text-blue h4 text-uppercase">{{myclass.name}}</h4>
+            </div>
+            {% for message in messages %}
+            <div class="pull-left">
+                <div class="alert alert-warning alert-dismissible fade show m-2" role="alert"><small> Marks of
+                        {{message}} pupil{% if message > 0 %}s{% endif %} have been saved</small>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            <div class="pull-right pd-20">
+                <div class="form-group">
+                    <select class="custom-select2 form-control" style="width: 100%; height: 38px;" name="myexam"
+                        id="exam-select">
+                        {% if exams %}
+                        {% for exam in exams %}
+                        <option value="{{exam.pk}}"> {{exam.subject}} {{exam.exam_type}} {{exam.date|date:'j/m/Y'}}
+                        </option>
+                        {% endfor %}
+                        {% else %}
+                        <option>No exam registered for {{myclass}}</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="pb-20">
+            <table class="checkbox-datatable table hover nowrap">
+                <thead>
+                    <tr>
+                        <!-- <th>
+							<div class="dt-checkbox">
+								<input type="checkbox" class="custom-control-input" id="check-all">
+								<span class="dt-checkbox-label" for="check-all"></span>
+							</div>
+						</th> -->
+                        <th>No.</th>
+                        <th>Name</th>
+                        <th>Marks</th>
+                        <!-- <th>Action</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4">
+                            No any Pupil Registered for this
+                        </td>
+
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="4" class="text-right">{% if exams %}
+                            <button type="submit" class="btn btn-primary btn-sm" name="grade-book"
+                                value="{{myclass}}">Submit</button>{% endif %}
+                        </td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</form>
+{% endif %}
+
+{% block scripts %}
+<script
+    src="{% static 'pris\src\plugins\Dynamic-jQuery-Cascading-Dropdown-Lists-Plugin\jquery.cascadingdropdown.js' %}"></script>
+<script>
+    $( function () {
+        $( "#exam-select" ).change( function () {
+            var url = $( "#exam-select-form" ).attr( "data-url" );  // get the url of the `load_cities` view
+            var exam = $( this ).val();  // get the selected country ID from the HTML input
+
+            $.ajax( {                       // initialize an AJAX request
+                url: url,                    // set the url of the request (= localhost:8000/hr/ajax/load-cities/)
+                data: {
+                    'exam': exam       // add the country id to the GET parameters
+                },
+                success: function ( data ) {   // `data` is the return of the `load_cities` view function
+                    $( "table tbody" ).html( data );	// replace the contents of the city input with the data that came from the server
+
+                }
+            } );
+        } ).change();
+    } );
+</script>
+
+
+
+{% endblock %}

@@ -1,0 +1,466 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}{% load humanize %}
+{% block main %}
+<div class="card-box height-100-p mb-4">
+    <div class="row pd-30">
+        <div class="col-md-6 col-sm-6 col-4 ">
+            <h2 class="h4">Items</h2>
+        </div>
+        <div class="col-md-6 col-sm-6 col-8  text-right">
+            <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#new-item-modal">
+                <i class="dw dw-edit2"></i>
+                New Item
+            </a>
+        </div>
+    </div>
+    {% for message in messages %}
+    {% if "msg_new" in message.tags %}
+    <div class="alert alert-warning alert-dismissible fade show m-2" role="alert"> {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    <!-- <div class="browser-visits"> -->
+    <table class="table table-striped nowrap">
+        <thead>
+            <tr>
+                <th class="table-plus">Name</th>
+                <th>Quantity</th>
+                <th class="datatable-nosort">Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in store_items %}
+            <tr>
+                <td class="table-plus d-flex flex-wrap align-items-center">
+                    <div class="visit">{{i.name|capfirst}}</div>
+                </td>
+                <td>
+                    <div class="visit"><span
+                            class="badge badge-pill {% cycle 'badge-primary' 'badge-dark' 'badge-success' 'badge-warning' 'badge-secondary' 'badge-info' 'badge-danger'  %}">{{i.qty}}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="dropdown">
+                        <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#"
+                            role="button" data-toggle="dropdown">
+                            <i class="dw dw-more"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                data-target="#edit-item-modal-{{i.pk}}" type="button"><i class="dw dw-edit2"></i>
+                                Edit</a>
+                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                data-target="#delete-item-modal-{{i.pk}}" type="button"><i class="dw dw-trash1"></i>
+                                Delete</a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <div id="edit-item-modal-{{i.pk}}" class="modal modal-top fade ">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h4 class="text-blue h4 mb-10">Edit Item</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row form-group">
+                                    <div class="col-auto">
+                                        <input type="text" class="form-control" placeholder="Name" value="{{i.name}}" name="item-edit-name-{{i.pk}}">
+                                        </div>
+                                    <div class="col">
+                                        <input type="text" class="form-control" placeholder="Unit" value="{{i.unit}}" name="item-edit-unit-{{i.pk}}">
+                                        </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-primary"
+                                    data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" value="{{i.pk}}" name="edit-item">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="delete-item-modal-{{i.pk}}" class="modal modal-top fade ">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="modal-body text-center font-18">
+                                <h4 class="padding-top-30 mb-30 weight-500 ">Do you still want to delete it?</h4>
+                                <div class="padding-bottom-30 row" style="max-width: 170px; margin: 0 auto;">
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-secondary border-radius-100 btn-block confirmation-btn"
+                                            data-dismiss="modal"><i class="fa fa-times"></i></button>
+                                        NO
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="submit" class="btn btn-primary border-radius-100 btn-block confirmation-btn"
+                                            name="confirm-delete-item" value="{{i.pk}}"><i class="fa fa-check"></i></button>
+                                        YES
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+<div class="card-box height-100-p">
+    <div class="row pd-30">
+        <div class="col-md-6 col-sm-6 col-4 ">
+            <h2 class="h4">Records</h2>
+        </div>
+        <div class="col-md-6 col-sm-6 col-8  text-right">
+            {% if store_items %}
+            <a class="btn btn-primary" href="#" role="button" data-toggle="modal" data-target="#new-record-modal">
+                <i class="dw dw-edit2"></i>
+                New Record
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% for message in messages %}
+    {% if "msg_new" in message.tags %}
+    <div class="alert alert-warning alert-dismissible fade show m-2" role="alert"> {{message}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {% endfor %}
+    <!-- <div class="browser-visits"> -->
+    <table class="table table-striped nowrap">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th class="table-plus">Item</th>
+                <th>Quantity</th>
+                <th>In / Out</th>
+                <th class="datatable-nosort">Action</th>
+
+            </tr>
+        </thead>
+        <tbody>
+            {% for i in store_records %}
+            <tr>
+                <td>{{i.date}}</td>
+                <td class="table-plus d-flex flex-wrap align-items-center">
+                    <div class="visit">{{i.item.name|capfirst}}</div>
+                </td>
+                <td>
+                    <div class="visit"><span
+                            class="badge badge-pill {% cycle 'badge-primary' 'badge-dark' 'badge-success' 'badge-warning' 'badge-secondary' 'badge-info' 'badge-danger'  %}">{{i.qty}}</span>
+                    </div>
+                </td>
+                <td>{% if i.going_out == True %}<span class="badge badge-pill badge-warning">Out</span>{% else %}<span class="badge badge-pill badge-success">In</span>{% endif %}</td>
+                <td>
+                    <div class="dropdown">
+                        <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#"
+                            role="button" data-toggle="dropdown">
+                            <i class="dw dw-more"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                data-target="#edit-record-modal-{{i.pk}}" type="button"><i class="dw dw-edit2"></i>
+                                Edit</a>
+                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                data-target="#delete-record-modal-{{i.pk}}" type="button"><i class="dw dw-trash1"></i>
+                                Delete</a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <div id="edit-record-modal-{{i.pk}}" class="modal modal-top fade ">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="modal-header">
+                                <h4 class="text-blue h4 mb-10">Add New Records</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-6 col-lg form-group">
+                                        <label>Date</label>
+    									<input class="d-block date-picker form-control" name="edit-record-date-{{i.pk}}"
+    										placeholder="Choose Date" data-language='en' data-date-format="dd MM yyyy" type="text" value="{% now 'j F Y' %}">
+                                    </div>
+                                    <div class="col-6 col-lg-auto me-auto form-group">
+                                        <label>Name</label>
+                                        <select class="select edit-record-select form-control" name="edit-record-name-{{i.pk}}">
+                                            {% for item in store_items %}
+    										<option value="{{item.id}}" {% if item.id == i.item.id %} selected {% endif %}>{{item}}</option>
+    										{% endfor %}
+    									</select>
+                                    </div>
+                                    <div class="col col-lg-3 form-group">
+                                        <label>Quantity</label>
+                                        <div class="d-flex align-items-center">
+                                            <input type="number" class="form-control" name="edit-record-qty-{{i.pk}}" value="{{i.qty}}">
+                                            <div id="edit-record-unit-{{i.pk}}" class="p-1">{{i.item.unit}}</div>
+                                        </div>
+                                    </div>
+                                    <div class="col col-lg-2 form-group">
+                                        <label>In/Out</label>
+                                        <select class="select form-control" name="item-record-in/out-1">
+        									<option value="out"{% if i.going_out == True %} selected {% endif %}>Out</option>
+        									<option value="in" {% if i.going_out == False %} selected {% endif %}>In</option>
+        								</select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-primary"
+                                    data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary" value="{{i.pk}}" name="edit-record">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div id="delete-record-modal-{{i.pk}}" class="modal modal-top fade ">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="modal-body text-center font-18">
+                                <h4 class="padding-top-30 mb-30 weight-500 ">Do you still want to delete it?</h4>
+                                <div class="padding-bottom-30 row" style="max-width: 170px; margin: 0 auto;">
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-secondary border-radius-100 btn-block confirmation-btn"
+                                            data-dismiss="modal"><i class="fa fa-times"></i></button>
+                                        NO
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="submit" class="btn btn-primary border-radius-100 btn-block confirmation-btn"
+                                            name="confirm-delete-record" value="{{i.pk}}"><i class="fa fa-check"></i></button>
+                                        YES
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+
+<div id="new-item-modal" class="text-left modal modal-top fade ">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h4 class="text-blue h4 mb-10">Add New Items</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="form-group-parent-items">
+                        <div class="row">
+                            <div class="col"><div class="form-group"><input type="text" class="form-control" placeholder="Name" name="item-add-name-1"></div></div>
+                            <div class="col-3"><div class="form-group"><input type="text" class="form-control" placeholder="Unit" name="item-add-unit-1"></div></div>
+                            <div class="col-1 d-flex align-items-start justify-content-center"><button type="button" class="btn delete text-danger"><i class="dw dw-trash1"></i></button></div>
+                        </div>
+
+                    </div>
+                    <div class="d-flex">
+                        <button id="new-item-form-group-btn" type="button" class="btn btn-secondary m-auto">Add</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary cancel"
+                        data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" name="save-new-items">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="new-record-modal" class="text-left modal modal-top fade ">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h4 class="text-blue h4 mb-10">Add New Records</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="form-group-parent-records">
+                        <div class="row">
+                            <div class="col-6 col-lg form-group">
+                                <label>Date</label>
+								<input class="d-block date-picker form-control " name="item-record-date-1"
+									placeholder="Choose Date " type="text" value="{% now 'j F Y' %}">
+                            </div>
+                            <div class="col-6 col-lg-auto me-auto form-group">
+                                <label>Name</label>
+                                <select class="select new-record-select form-control" name="item-record-name-1">
+                                    {% for item in store_items %}
+									<option value="{{item.id}}">{{item}}</option>
+									{% endfor %}
+								</select>
+                            </div>
+                            <div class="col col-lg-3 form-group">
+                                <label>Quantity</label>
+                                <div class="d-flex align-items-center">
+                                    <input type="number" class="form-control" name="item-record-qty-1">
+                                    <div id="item-record-unit-1" class="p-1"></div>
+                                </div>
+                            </div>
+                            <div class="col col-lg-2 form-group">
+                                <label>In/Out</label>
+                                <select class="select form-control" name="item-record-in/out-1">
+									<option value="out">Out</option>
+									<option value="in">In</option>
+								</select>
+                            </div>
+                            <div class="col-1 d-flex align-items-center justify-content-center"><button type="button" class="btn delete text-danger"><i class="dw dw-trash1"></i></button></div>
+                        </div>
+                    </div>
+                    <div class="d-flex">
+                        <button id="new-record-form-group-btn" type="button" class="btn btn-secondary m-auto">Add</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary cancel"
+                        data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" name="save-new-records">Save</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% for message in messages %}
+{% if 'msg_sell' in message.tags %}
+<div id="confirm-sell-assets-modal" class="modal modal-top fade ">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center font-18">
+                <h4 class="padding-top-30 mb-30 weight-500 ">{{message|capfirst}}</h4>
+                <p>Do you still want to add it?</p>
+                <div class="padding-bottom-30 row" style="max-width: 170px; margin: 0 auto;">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-secondary border-radius-100 btn-block confirmation-btn"
+                            data-dismiss="modal"><i class="fa fa-times"></i></button>
+                        NO
+                    </div>
+                    <div class="col-6">
+                        <button type="submit" class="btn btn-primary border-radius-100 btn-block confirmation-btn"
+                            name="confirm-sell"><i class="fa fa-check"></i></button>
+                        YES
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+
+{% endblock %}
+{% block scripts %}
+<script>
+    var itemCount = 2
+    $("#new-item-form-group-btn").click(function(){
+        var formGroup = ['<div class="row pt-3 border-top">',
+        '<div class="col"><div class="form-group"><input type="text" class="form-control" placeholder="Name" name="item-add-name-'+itemCount+'"></div></div>',
+        '<div class="col-3"><div class="form-group"><input type="text" class="form-control" placeholder="Unit" name="item-add-unit-'+itemCount+'"></div></div>',
+        '<div class="col-1 d-flex align-items-start justify-content-center"><button type="button" class="btn delete text-danger"><i class="dw dw-trash1"></i></button></div>',
+        '</div>'].join('\n')
+
+        $("#form-group-parent-items").append(formGroup)
+        itemCount++
+    })
+    var recordCount = 2
+    $("#new-record-form-group-btn").click(function(){
+        var formGroup = [
+            '<div class="row border-top">',
+                '<div class="col form-group">',
+                    '<label>Date</label>',
+        			'<input class="d-block date-picker form-control" name="item-record-date-'+recordCount+'" placeholder="Choose Date" data-language="en" data-date-format="dd MM yyyy" type="text" value="{% now 'j F Y' %}">',
+                '</div>',
+                '<div class="col-auto me-auto form-group">',
+                    '<label>Name</label>',
+                    '<select class="select new-record-select form-control" name="item-record-name-'+recordCount+'">',
+                    '{% for item in store_items %}<option value="{{item.id}}">{{item}}</option>{% endfor %}',
+        			'</select>',
+                '</div>',
+                '<div class="col-3 form-group">',
+                    '<label>Quantity</label>',
+                    '<div class="d-flex align-items-center">',
+                        '<input type="number" class="form-control" name="item-record-qty-'+recordCount+'">',
+                        '<div id="item-record-unit-'+recordCount+'" class="p-1">Kg</div>',
+                    '</div>',
+                '</div>',
+                '<div class="col-2 form-group">',
+                    '<label>In/Out</label>',
+                    '<select class="select form-control" name="item-record-in/out-'+recordCount+'">',
+						'<option value="out">Out</option>',
+						'<option value="in">In</option>',
+					'</select>',
+                '</div>',
+                '<div class="col-1 d-flex align-items-center justify-content-center"><button type="button" class="btn delete text-danger"><i class="dw dw-trash1"></i></button></div>',
+            '</div>'
+        ].join('\n')
+
+        $("#form-group-parent-records").append(formGroup)
+        $( ".date-picker" ).last().datepicker();
+        $("select").last().change();
+        recordCount++
+    })
+
+    $("body").on("change",".new-record-select", function(){
+        var name = $(this).attr("name")
+        var unitCount = name.replace('item-record-name-', '')
+
+        $.ajax({
+            url:"{% url 'store_records_data' %}",
+            data:{
+                'selectVal': $(this).val(),
+            },
+            success: function(data){
+                $("#item-record-unit-"+unitCount).html(data)
+                console.log($("#item-record-unit-"+unitCount).html())
+            }
+        })
+    })
+    $(".new-record-select").change();
+
+    $("body").on("change",".edit-record-select", function(){
+        var name = $(this).attr("name")
+        var unitCount = name.replace('edit-record-name-', '')
+
+        $.ajax({
+            url:"{% url 'store_records_data' %}",
+            data:{
+                'selectVal': $(this).val(),
+            },
+            success: function(data){
+                $("#edit-record-unit-"+unitCount).html(data)
+                console.log($("#edit-record-unit-"+unitCount).html())
+            }
+        })
+    })
+    $(".cancel").click(function(){
+        $(this).parents(".modal-content").find(".row").not(".row:first").remove()
+        $(this).parents(".modal-content").find('input[type="text"]').val('')
+    })
+    $("body").on("click", ".delete", function(){
+        $(this).parents(".row").remove();
+    })
+</script>
+{% endblock %}

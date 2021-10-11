@@ -1,0 +1,20 @@
+{% if exam.academicprogress_set.all %}
+{% for report in exam.academicprogress_set.all %}
+<tr>
+    <td>{{forloop.counter}}</td>
+    <td class="text-uppercase">{{report.pupil.user.get_fullname}}</td>
+    <td>
+        <!-- <div class="dt-checkbox">
+            <input type="checkbox" class="custom-control-input" id="post{{report.pupil.pk}}" name="post{{report.pupil.pk}}" checked>
+            <span class="dt-checkbox-label" for="post{{report.pupil.pk}}"></span>
+        </div> -->
+        <!-- <input type="text" name="post{{pupil.pk}}"> -->
+        <input class="form-control" type="number" name="marks{{report.pupil.pk}}" max="100" min="0" value="{{report.marks}}">
+    </td>
+</tr>
+{% endfor %}
+{% else %}
+<tr>
+    <td colspan="6" class="text-center">No any pupil's marks recorded for this exam</td>
+</tr>
+{% endif %}

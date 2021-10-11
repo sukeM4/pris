@@ -1,0 +1,155 @@
+{% load static %}{% load mytags %}{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>ACADEMIC PROGRESSIVE REPORT </title>
+        <style>
+            body {
+                font-weight: 200;
+                font-size: 10px;
+            }
+
+            .header {
+                font-size: 20px;
+                font-weight: 100;
+                text-align: center;
+            }
+
+            .title {
+                font-size: 22px;
+                font-weight: 200;
+                /* text-align: right;*/
+                padding: 20px 20px 0px 20px;
+                margin: 0;
+            }
+
+            /* .title span {
+                color: #007cae;
+            } */
+
+            .details {
+                padding: 10px 20px 0px 20px;
+                text-align: left !important;
+                /*margin-left: 40%;*/
+
+            }
+
+            .hrItem {
+                border: none;
+                height: 1px;
+                padding: 0;
+                /* Set the hr color */
+                color: #333;
+                /* old IE */
+                background-color: #fff;
+                /* Modern Browsers */
+            }
+
+            img {
+                zoom: 50%;
+                margin: auto;
+            }
+
+            
+            .subject {
+                width: 140px;
+                padding: 3px;
+            }
+
+            .no {
+                width: 25px;
+                padding: 1px;
+            }
+
+            .marks {
+                padding: 3px;
+                width: 50px;
+            }
+
+            .border {
+                border: 1px solid black;
+            }
+
+
+
+            @page template {
+                size: a4 portrait;
+            }
+
+        </style>
+    </head>
+
+    <body>
+        <div class='wrapper'>
+            <div class='header'>
+                <img src="C:\Users\public.DESKTOP-2IG0C8O\Desktop\malenproject\malenproject\director\static\director\img\malenlogo.jpg"
+                    alt="">
+                <!-- <img src="{% static 'pris/malenlogo.jpg' %}" height="150" width="150" alt=""> -->
+                <h1 class='title'>
+                    MALEN PRE AND PRIMARY SCHOOL <br>
+                    <span style="text-transform: uppercase;">{{main.exam_group_main.exam_type|upper}} </span>EXAMINATION
+                    RESULTS {{main.exam_group_main.end_date|date:'F Y'|upper}} {{main.myclass}} <br>
+                    <span style="font-size:12px;">P.O.Box: 17143 Dar es Salaam, Tel: <strong>+255 685 135 324</strong> /
+                        <strong>+255 768 185 858</strong>
+
+                        Email: malenschools@gmail.com</span></h1>
+
+            </div>
+            <!-- <hr class='hrItem' /> -->
+            <div class='details'>
+                <table>
+                    <thead>
+                        <tr>
+                            <td class="border no">No.</td>
+                            <td class="border subject">NAME</td>
+                            {% for subject in subjects %}
+                            <td class="border marks">
+                                {% if subject.0|wordcount > 1 %}{{subject.0|slugify|shortsubject|upper}}{% else %}
+                                {{subject.0|make_list|removelist|upper}}{% endif %}</td>
+                            {% endfor %}
+                            <td class="border marks">Total</td>
+                            <td class="border marks">Average</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for i in report_list|dictsortreversed:'total' %}
+                        <tr>
+                            <td class="border no" style="text-align: center;">{{forloop.counter}}.</td>
+                            <td class="border subject">{{i.pupil.user.get_fullname}}</td>
+                            {% for subject_report in i.report %}
+                            <td class="border marks">{{subject_report.marks}}</td>
+                            {% endfor %}
+                            <td class="border marks">{{i.total}}</td>
+                            <td class="border marks">{{i.average}}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr>
+                            <td class="no"></td>
+                            <td class="subject"></td>
+                            {% for subject in subjects %}
+                            <td class="border marks">{{subject.1}}</td>
+                            {% endfor %}
+                            <!-- <td class="marks" style="border-top: 2px solid black; border-left: 2px solid black;"></td> -->
+                            <td colspan="2" style="border-left: 2px solid black; border-right: 2px solid black; border-top: 2px solid black;">{{class_avg}}</td>
+                        </tr>
+                        <tr>
+                            <td class="no"></td>
+                            <td class="subject"></td>
+                            {% for subject in subjects %}
+                            <td class="border marks">{% if subject.1 < 35 %} F{% elif subject.1 < 50 %} D{% elif subject.1 < 65 %} C{% elif subject.1 < 85 %} B{% else %}
+                            A{% endif %}</td>
+                            {% endfor %}
+                            <!-- <td class="marks" style="border-bottom: 2px solid black; border-left: 2px solid black;"></td> -->
+                            <td colspan="2" style="border-left: 2px solid black; border-right: 2px solid black; border-bottom: 2px solid black;">{% if class_avg < 35 %} F{% elif class_avg < 50 %} D{% elif class_avg < 65 %} C{% elif class_avg < 85 %} B{% else %}
+                            A{% endif %}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </body>
+
+</html>

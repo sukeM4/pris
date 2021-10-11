@@ -1,0 +1,34 @@
+{% extends 'pris/base.html' %}
+{% load static %}
+{% block main %}
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart1"></div>
+				</div>
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart2"></div>
+				</div>
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart3"></div>
+				</div>
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart4"></div>
+				</div>
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart5"></div>
+				</div>
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart6"></div>
+				</div>
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart7"></div>
+				</div>
+				<div class="bg-white pd-20 card-box mb-30">
+					<div id="chart8"></div>
+				</div>
+			
+{% endblock %}{% block scripts %}
+	<script src="{% static 'pris/src/plugins/highcharts-6.0.7/code/highcharts.js' %}"></script>
+	<script src="https://code.highcharts.com/highcharts-3d.js"></script>
+	<script src="{% static 'pris/src/plugins/highcharts-6.0.7/code/highcharts-more.js' %}"></script>
+	<script src="{% static 'pris/vendors/scripts/highchart-setting.js' %}"></script>
+{% endblock %}

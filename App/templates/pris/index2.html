@@ -1,0 +1,210 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}{% load humanize %}
+{% block style %}
+<link rel="stylesheet" type="text/css" href="{% static 'pris/src/plugins/jvectormap/jquery-jvectormap-2.0.3.css' %}">
+{% endblock %}
+{% block main %}
+<div class="row clearfix progress-box">
+	<div class="col-sm-4 col-xs-6 mb-30">
+		<div class="card-box pd-30 height-100-p">
+			<div class="text-center justify-content-center">
+				<h5 class="text-light-green h5">Income</h5>
+				<h5><span>Tsh </span>
+					<span class="counter"> {{income}}</span>
+				</h5>
+			</div>
+		</div>
+	</div>
+	<div class=" col-sm-4 col-xs-6 mb-30">
+		<div class="card-box pd-30 height-100-p">
+			<div class="text-center justify-content-center">
+				<h5 class="text-warning h5">Expenses</h5>
+				<h5><span>Tsh </span>
+					<span class="counter">{{expenses}}</span>
+				</h5>
+			</div>
+		</div>
+	</div>
+	<div class=" col-sm-4 col-xs-6 mb-30">
+		<div class="card-box pd-30 height-100-p">
+			<div class="text-center justify-content-center">
+				<h5 class="text-light-purple h5">Balance</h5>
+				<h5><span>Tsh </span><span class="counter">{{balance}}</span></h5>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-3 col-md-12 col-sm-12 mb-30">
+		<div class="row">
+			<div class="col col-xs-12 mb-lg-4 xs-mb-20">
+				<div class="card-box pd-30 ">
+					<div class="progress-box text-center">
+						<input type="text " class="knob income " value="80" data-width="120" data-height="120"
+							data-linecap="round" data-thickness="0.12" data-bgColor="#fff" data-fgColor="#00e091"
+							data-angleOffset="180" readonly>
+						<h5 class="text-light-green padding-top-10 h5">Income</h5>
+						<span class="d-block">{{income_p}}% Average <i
+								class="fa fa-line-chart text-light-green"></i></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="col col-xs-12 ">
+				<div class="card-box pd-30 ">
+					<div class="progress-box text-center">
+						<input type="text" class="knob expenses" value="80" data-width="120" data-height="120"
+							data-linecap="round" data-thickness="0.12" data-bgColor="#fff" data-fgColor="#ffc107"
+							data-angleOffset="180" readonly>
+						<h5 class="text-warning padding-top-10 h5">Expenses</h5>
+						<span class="d-block">{{expenses_p}}% Average <i
+								class="fa fa-line-chart text-warning"></i></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row">
+	<div class="col-lg-12 col-md-12 col-sm-12 mb-30">
+		<div class="card-box pd-30 height-100-p">
+			<h4 class="mb-30 h4">Cash Book Trend</h4>
+			<div id="chart" class="chart"></div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/jQuery-Knob-master/jquery.knob.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/highcharts-6.0.7/code/highcharts.js' %}"></script>
+<script src="{% static 'pris/src/plugins/highcharts-6.0.7/code/highcharts-more.js' %}"></script>
+<script src="{% static 'pris/src/plugins/jvectormap/jquery-jvectormap-2.0.3.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/jvectormap/jquery-jvectormap-world-mill-en.js' %}"></script>
+<script src="{% static 'pris/vendors/scripts/dashboard2.js' %}"></script>
+
+<script>
+	$( ".income" ).knob();
+	$( { animatedVal: 0 } ).animate( { animatedVal: {{ income_p }} }, {
+		duration: 3000,
+		easing: "swing",
+		step: function () {
+			$( ".income" ).val( Math.ceil( this.animatedVal ) ).trigger( "change" );
+		}
+	} );
+	$( ".expenses" ).knob();
+	$( { animatedVal: 0 } ).animate( { animatedVal: {{ expenses_p }} }, {
+		duration: 3000,
+		easing: "swing",
+		step: function () {
+			$( ".expenses" ).val( Math.ceil( this.animatedVal ) ).trigger( "change" );
+		}
+	} );
+
+	// chart
+	Highcharts.chart( 'chart', {
+		chart: {
+			type: 'line'
+		},
+		title: {
+			text: ''
+		},
+		xAxis: {
+			categories: {{ date_list| safe}},
+		labels: {
+		style: {
+			color: '#1b00ff',
+			fontSize: '12px',
+		}
+	}
+		},
+		yAxis: {
+		labels: {
+			formatter: function () {
+				return this.value;
+			},
+			style: {
+				color: '#1b00ff',
+				fontSize: '14px'
+			}
+		},
+		title: {
+			text: ''
+		},
+	},
+		credits: {
+		enabled: false
+	},
+		tooltip: {
+		crosshairs: true,
+		shared: true
+	},
+		plotOptions: {
+		spline: {
+			marker: {
+				radius: 10,
+				lineColor: '#1b00ff',
+				lineWidth: 2
+			}
+		}
+	},
+		legend: {
+		align: 'center',
+		x: 0,
+		y: 0
+	},
+		series: [ {
+			name: 'Income',
+			color: '#28a745',
+			marker: {
+				symbol: 'circle'
+			},
+			data: {{ income_list }},
+		},
+		{
+			name: 'Expenses',
+			color: '#ff686b',
+			marker: {
+				symbol: 'circle'
+			},
+			data: {{ expenses_list }},
+		},
+		{
+			name: 'Balance',
+			color: '#00789c',
+			marker: {
+				symbol: 'circle'
+			},
+			data: {{ balance_list }},
+		}, ]
+	} );
+
+</script>
+
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+
+<script>
+	$( '#confirm-sell-assets-modal' ).modal( 'show' );
+	$( "#exists" ).delay( 3000 ).fadeOut( 500 );
+	$( '.counter' ).each( function () {
+		var $this = $( this );
+		jQuery( { Counter: 0 } ).animate( { Counter: $this.text() }, {
+			duration: 2000,
+			easing: 'swing',
+			step: function () {
+				$this.text( Math.ceil( this.Counter ).toLocaleString( 'en' ) );
+			}
+		} );
+	} );
+</script>
+{% endblock %}

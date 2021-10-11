@@ -1,0 +1,780 @@
+{% extends 'pris/base.html' %}
+{% load static %}
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'pris/src/plugins/jquery-steps/jquery.steps.css' %}">
+
+<link rel="stylesheet" type="text/css" href="{% static 'pris/src/plugins/bootstrap-tagsinput/bootstrap-tagsinput.css' %}">
+{% endblock %}
+{% block main %}
+<div class=" card-box mb-30">
+	<div class="clearfix pt-4 pl-4 pr-4">
+		<h4 class="text-blue h4">Pupil Registration Form</h4>
+
+	</div>
+	<div class="register-page-wrap">
+		<div class="wizard-content">
+			<form class="tab-wizard3 wizard-circle wizard" method="POST" enctype="multipart/form-data"
+				style="padding-left: 5px;">
+				{% csrf_token %}
+				<h5>Child Personal Particular</h5>
+				<section>
+					<h5 class="mb-30 ">Child Personal Particulars</h5>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>First Name :</label>
+								<input type="text" class="required form-control" name="first-name">
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Middle Name :</label>
+								<input type="text" class="required form-control" name="middle-name">
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Last Name :</label>
+								<input type="text" class="required form-control" name="last-name">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Date of Birth :</label>
+								<input type="text" class="form-control date-picker required" placeholder="Select Date"
+									name="birth-date" autocomplete="off">
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Place of Birth :</label>
+								<input type="text" class="form-control required" name="birth-place">
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Gender</label>
+								<div class="d-flex">
+									<div class="custom-control custom-radio mb-5 mr-20">
+										<input type="radio" id="female" name="sex" class="custom-control-input"
+											value="female" checked>
+										<label class="custom-control-label weight-400" for="female">Female</label>
+									</div>
+									<div class="custom-control custom-radio mb-5">
+										<input type="radio" id="male" name="sex" class="custom-control-input required"
+											value="male">
+										<label class="custom-control-label weight-400" for="male">Male</label>
+									</div>
+								</div>
+							</div>
+						</div>
+
+					</div>
+					<div class="row">
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Class Applied :</label>
+								<select class="selectpicker form-control " name="class-applied">
+									{% for grade_level in grade_levels %}
+									<optgroup label="{{grade_level}}" data-max-options="2">
+										{% for myclass in grade_level.myclass_set.all %}
+										<option value="{{myclass.position}}">{{myclass}}</option>
+										{% endfor %}
+									</optgroup>
+									{% endfor %}
+								</select>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Class Admitted :</label>
+								<select class="selectpicker form-control " name="class-admitted">
+									{% if grade_levels %}
+									{% for grade_level in grade_levels %}
+									<optgroup label="{{grade_level}}" data-max-options="2">
+										{% if grade_level.myclass_set.all %}
+										{% for myclass in grade_level.myclass_set.all %}
+										<option value="{{myclass.position}}">{{myclass}}</option>
+										{% endfor %}
+										{% endif %}
+									</optgroup>
+									{% endfor %}
+									{% endif %}
+								</select>
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group">
+								<label>Date Admitted :</label>
+								<input type="text" class="required form-control date-picker required"
+									placeholder="Select Date" name="date-admitted" autocomplete="off">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label>Photo</label>
+								<input type="file" class="form-control-file form-control height-auto" name="photo">
+							</div>
+						</div>
+					</div>
+
+				</section>
+				<!-- Step 2 -->
+				<h5>Previous School Attended</h5>
+				<section>
+					<h5 class="mb-30">Previous School Attended</h5>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Name of Nursery School(s) :</label>
+								<input type="text" class="form-control" name="prev-1-name">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Category of Nursery :</label>
+								<div class="d-flex">
+									<div class="custom-control custom-radio mb-5 mr-20">
+										<input type="radio" id="customRadio3" name="prev-1-medium" value="english"
+											class="custom-control-input">
+										<label class="custom-control-label weight-400" for="customRadio3">English
+											Medium</label>
+									</div>
+									<div class="custom-control custom-radio mb-5">
+										<input type="radio" id="customRadio4" name="prev-1-medium" value="swahili"
+											class="custom-control-input">
+										<label class="custom-control-label weight-400" for="customRadio4">Swahili
+											Medium</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Date of Admission :</label>
+								<input type="text" class="form-control date-picker" placeholder="Select Date"
+									name="prev-1-date-admitted" autocomplete="off">
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Date left :</label>
+								<input type="text" class="form-control date-picker" placeholder="Select Date"
+									name="prev-1-date-left" autocomplete="off">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label>Reason(s) for leaving the previous school :</label>
+								<textarea class="form-control" name="prev-1-reasons"></textarea>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck1"
+									name="prev-1-report">
+								<label class="custom-control-label" for="customCheck1">is a copy of Assessment Report
+									attached?</label>
+							</div>
+						</div>
+					</div>
+					<div class="row mb-30">
+						<div class="col">
+							<h5 class="">If transferred from other schools also fill this part</h5>
+						</div>
+
+					</div>
+
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Name of School(s) :</label>
+								<input type="text" class="form-control" name="prev-2-name">
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Medium of instruction used in the former school :</label>
+								<div class="d-flex">
+									<div class="custom-control custom-radio mb-5 mr-20">
+										<input type="radio" id="customRadio5" name="prev-2-medium" value="english"
+											class="custom-control-input">
+										<label class="custom-control-label weight-400" for="customRadio5">English
+											Medium</label>
+									</div>
+									<div class="custom-control custom-radio mb-5">
+										<input type="radio" id="customRadio6" name="prev-2-medium" value="swahili"
+											class="custom-control-input">
+										<label class="custom-control-label weight-400" for="customRadio6">Swahili
+											Medium</label>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Date of Admission :</label>
+								<input type="text" class="form-control date-picker" placeholder="Select Date"
+									name="prev-2-date-admitted" autocomplete="off">
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<label>Date left :</label>
+								<input type="text" class="form-control date-picker" placeholder="Select Date"
+									name="prev-2-date-left" autocomplete="off">
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label>Reason(s) for leaving the previous school :</label>
+								<textarea class="form-control" name="prev-2-reasons"></textarea>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck101"
+									name="prev-2-report">
+								<label class="custom-control-label" for="customCheck101">is a copy of Assessment Report
+									attached?</label>
+							</div>
+						</div>
+					</div>
+					<hr>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<label>
+									<h4 class="h4">REASON(S) TO STUDY AT MALEN :</h4>
+								</label>
+								<textarea class="form-control textarea_editor" name="reasons-at-malen"></textarea>
+							</div>
+						</div>
+					</div>
+				</section>
+				<!-- Step 3 -->
+				<h5>Medical Records</h5>
+				<section>
+					<h5 class="mb-30">Medical Records</h5>
+					<div class="row">
+						<div class="col"><label class="weight-600">Immunization: </label></div>
+					</div>
+					<div class="row mb-30">
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck2" name="dpt">
+								<label class="custom-control-label" for="customCheck2">
+									DPT</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck3" name="pv">
+								<label class="custom-control-label" for="customCheck3">
+									PV</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck4" name="tetanus">
+								<label class="custom-control-label" for="customCheck4">
+									TETANUS</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck5" name="pertussis">
+								<label class="custom-control-label" for="customCheck5">
+									PERTUSSIS</label>
+							</div>
+						</div>
+
+					</div>
+					<div class="row ">
+						<div class="col"><label class="weight-600"> Does your child suffer from any of the conditions
+								stated below?</label></div>
+					</div>
+					<div class="row mb-30">
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck6" name="diabetes">
+								<label class="custom-control-label" for="customCheck6">
+									Diabetes</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck7" name="epilepsy">
+								<label class="custom-control-label" for="customCheck7">
+									Epilepsy</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck8" name="convulsion">
+								<label class="custom-control-label" for="customCheck8">
+									Convulsion</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck9" name="asthma">
+								<label class="custom-control-label" for="customCheck9">
+									Asthma</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck10" name="tb">
+								<label class="custom-control-label" for="customCheck10">
+									TB</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck11"
+									name="rheumatism">
+								<label class="custom-control-label" for="customCheck11">
+									Rheumatism</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck13"
+									name="eye-problems">
+								<label class="custom-control-label" for="customCheck13">
+									Eye problems</label>
+							</div>
+						</div>
+						<div class="col-md-3">
+							<div class="custom-control custom-checkbox mb-5">
+								<input type="checkbox" class="custom-control-input" id="customCheck14"
+									name="physical-disabilities">
+								<label class="custom-control-label" for="customCheck14">
+									Physical Disabilities</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<div class="form-group">
+								<label>Is your child taking and medication regularly at home? If yes, what kind of
+									medicine
+									(s) specify and /or prescribe</label>
+								<textarea class="form-control" name="medication"></textarea>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col">
+							<label> Does your childhave any allergy? If yet, be specific when listing drugs (s)
+								food,
+								things allergies.</label></div>
+					</div>
+					<div class="form-group row">
+						<div class="col-md-6 mb-10"><input type="text" class="form-control" name="allergy1"></div>
+						<div class="col-md-6 mb-10"><input type="text" class="form-control" name="allergy2"></div>
+					</div>
+					<div class="form-group row">
+						<div class="col-md-6 mb-10"><input type="text" class="form-control" name="allergy3"></div>
+						<div class="col-md-6 mb-10"><input type="text" class="form-control" name="allergy4"></div>
+					</div>
+
+				</section>
+				<!-- Step 4 -->
+				<h5>Parents/Guardians' particulars</h5>
+				<section>
+					<div class="mb-30">
+						<h5>Father’s particular</h5>
+						<div>
+							<div class="row">
+								<div class="col-md-4">
+									<div class="form-group">
+										<label>First Name :</label>
+										<input type="text" class="form-control" name="father-first-name">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group">
+										<label>Middle Name</label>
+										<input type="text" class="form-control" name="father-middle-name">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group">
+										<label>Last Name</label>
+										<input type="text" class="form-control" name="father-last-name">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Village/ Street</label>
+										<input type="text" class="form-control" name="father-village-street">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Ward</label>
+										<input type="text" class="form-control" name="father-ward">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Division</label>
+										<input type="text" class="form-control" name="father-division">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>District</label>
+										<input type="text" class="form-control" name="father-district">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Region</label>
+										<input type="text" class="form-control" name="father-region">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-3">
+									<div class="form-group">
+										<label><i class="dw dw-phone-call"></i> Home</label>
+										<input type="text" class="form-control" name="father-tel-home">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label><i class="dw dw-phone-call"></i> Office</label>
+										<input type="text" class="form-control" name="father-tel-office">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Mob</label>
+										<input type="text" class="form-control" name="father-mob">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Postal Address</label>
+										<input type="text" class="form-control" name="father-postal-address">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label>Occupation</label>
+										<input type="text" class="form-control" name="father-occupation">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Nationality </label>
+										<input type="text" class="form-control" name="father-nationality"
+											value="TANZANIAN">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Tribe</label>
+										<input type="text" class="form-control" name="father-tribe">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Religion</label>
+										<input type="text" class="form-control" name="father-religion">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Denomination</label>
+										<input type="text" class="form-control" name="father-denomination">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="mb-30">
+						<h5>Mother's particular</h5>
+
+						<div>
+							<div class="row">
+								<div class="col-md-4">
+									<div class="form-group">
+										<label>First Name :</label>
+										<input type="text" class="form-control" name="mother-first-name">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group">
+										<label>Middle Name</label>
+										<input type="text" class="form-control" name="mother-middle-name">
+									</div>
+								</div>
+								<div class="col-md-4">
+									<div class="form-group">
+										<label>Last Name</label>
+										<input type="text" class="form-control" name="mother-last-name">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Village/ Street</label>
+										<input type="text" class="form-control" name="mother-village-street">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Ward</label>
+										<input type="text" class="form-control" name="mother-ward">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Division</label>
+										<input type="text" class="form-control" name="mother-division">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>District</label>
+										<input type="text" class="form-control" name="mother-district">
+									</div>
+								</div>
+								<div class="col-md-2">
+									<div class="form-group">
+										<label>Region</label>
+										<input type="text" class="form-control" name="mother-region">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-3">
+									<div class="form-group">
+										<label><i class="dw dw-phone-call"></i> Home</label>
+										<input type="text" class="form-control" name="mother-tel-home">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label><i class="dw dw-phone-call"></i> Office</label>
+										<input type="text" class="form-control" name="mother-tel-office">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Mob</label>
+										<input type="text" class="form-control" name="mother-mob">
+									</div>
+								</div>
+								<div class="col-md-3">
+									<div class="form-group">
+										<label>Postal Address</label>
+										<input type="text" class="form-control" name="mother-postal-address">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col">
+									<div class="form-group">
+										<label>Occupation</label>
+										<input type="text" class="form-control" name="mother-occupation">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Nationality </label>
+										<input type="text" class="form-control" name="mother-nationality"
+											value="TANZANIAN">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Tribe</label>
+										<input type="text" class="form-control" name="mother-tribe">
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Religion</label>
+										<input type="text" class="form-control" name="mother-religion">
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label>Denomination</label>
+										<input type="text" class="form-control" name="mother-denomination">
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<h5 class="text-uppercase">Immediate Contacts:</h5>
+					<hr>
+					<div class="mb-30">
+						<h5>Emergence Calls</h5>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label> Name :</label>
+									<input type="text" class="form-control" name="emergence-name">
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Relation with Child :</label>
+									<input type="text" class="form-control" name="emergence-relation">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Contact Address</label>
+									<input type="text" class="form-control" name="emergence-address">
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Mobile No.</label>
+									<input type="text" class="form-control" name="emergence-mob" data-role="tagsinput">
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="mb-30">
+						<h5>Who is responsible for the child /pupil’s school payments? </h5>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label> Name :</label>
+									<input type="text" class="form-control" name="payer-name">
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Relation with Child :</label>
+									<input type="text" class="form-control" name="payer-relation">
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Contact Address</label>
+									<input type="text" class="form-control" name="payer-address">
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label>Mobile No.</label>
+									<input type="text" class="form-control" name="payer-mob" data-role="tagsinput">
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+			</form>
+		</div>
+	</div>
+</div>
+{% for message in messages %}
+<!-- success Popup html Start -->
+<div class="modal fade" id="success-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+	aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-body text-center font-18">
+				<h3 class="mb-20">
+					{% if 'error' in message.tags %}Error{% elif 'success' in message.tags%}Success{% endif %}</h3>
+				<div class="mb-30 text-center">{% if 'error' in message.tags %}<img
+						src="{% static 'pris/vendors/images/cross.png' %}">{% elif 'success' in message.tags%}<img
+						src="{% static 'pris/vendors/images/success.png' %}">{% endif %}
+				</div>
+				{{message}}
+			</div>
+			<div class="modal-footer justify-content-center">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- success Popup html End -->
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/jquery-steps/jquery.steps.js' %}"></script>
+<script src="{% static 'pris/vendors/scripts/steps-setting.js' %}"></script>
+<script src="{% static 'pris\src\plugins\jquery-validation-1.19.1\dist\jquery.validate.min.js' %}"></script>
+<!-- <script src="{% static 'pris\vendors\scripts\form-validation.js' %}"></script> -->
+<!-- bootstrap-tagsinput js -->
+<script src="{% static 'pris/src/plugins/bootstrap-tagsinput/bootstrap-tagsinput.js' %}"></script>
+<script src="{% static 'pris/vendors/scripts/advanced-components.js' %}"></script>
+
+<script>
+	jQuery( document ).ready( function () {
+
+		$( '#success-modal' ).modal( 'show' )
+		// setTimeout( function () {
+		// 	$( '#success-modal' ).modal( 'hide' );
+
+		// }, 2000 );
+
+	} );
+	var form = $( "form" );
+	form.validate();
+	$( ".tab-wizard3" ).steps( {
+		headerTag: "h5",
+		bodyTag: "section",
+		transitionEffect: "fade",
+		titleTemplate: '<span class="step">#index#</span> #title#',
+
+		labels: {
+			finish: "Save",
+		},
+
+		onStepChanging: function ( event, currentIndex, newIndex ) {
+			form.validate().settings.ignore = ":disabled,:hidden";
+			return form.valid();
+		},
+		onFinishing: function ( event, currentIndex ) {
+			form.validate().settings.ignore = ":disabled";
+			return form.valid();
+		},
+		onFinished: function ( event, currentIndex ) {
+			form.submit();
+		}
+	} );
+</script>
+{% endblock %}

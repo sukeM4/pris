@@ -1,0 +1,261 @@
+{% extends 'pris/base.html' %}
+{% load static %}
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'pris/src/plugins/fullcalendar/fullcalendar.css' %}">
+
+{% endblock %}
+{% block main %}
+<div class="pd-20 card-box mb-30">
+	<div class="calendar-wrap">
+		<div id='calendar'></div>
+	</div>
+	<!-- calendar modal -->
+	<div id="modal-view-event" class="modal modal-top fade calendar-modal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body">
+					<h4 class="h4"><span class="event-icon weight-400 mr-3"></span><span class="event-title"></span>
+					</h4>
+					<div class="event-body"></div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="modal-view-event-add" class="modal modal-top fade calendar-modal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<form  method="POST">
+					{% csrf_token %}
+					<div class="modal-body">
+						<h4 class="text-blue h4 mb-10">Add Event Detail</h4>
+						<div class="form-group">
+							<label>Event name</label>
+							<input type="text" class="form-control" name="ename" autocomplete="off">
+						</div>
+						<div class="form-group">
+							<label>Event Starting Date</label>
+							<input type='text' class="datetimepicker form-control" name="edatestart" autocomplete="off">
+						</div>
+						<div class="form-group">
+							<label>Event Ending Date</label>
+							<input type='text' class="datetimepicker form-control" name="edateend" autocomplete="off">
+						</div>
+						<div class="form-group">
+							<label>Event Description</label>
+							<textarea class="form-control" name="edesc"></textarea>
+						</div>
+						<div class="form-group">
+							<label>Event Color</label>
+							<div class="col-sm-12 col-md-10">
+								<input class="form-control" value="#563d7c" type="color" name="ecolor">
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Event Icon</label>
+							<select class="form-control" name="eicon">
+								<option value="circle">circle</option>
+								<option value="cog">cog</option>
+								<option value="group">group</option>
+								<option value="suitcase">suitcase</option>
+								<option value="calendar">calendar</option>
+							</select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="submit" class="btn btn-primary">Save</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/fullcalendar/fullcalendar.min.js' %}"></script>
+<!-- <script src="{% static 'pris/vendors/scripts/calendar-setting.js' %}"></script> -->
+<script>
+	jQuery( document ).ready( function () {
+			jQuery( "#add-event" ).submit( function () {
+				alert( "Submitted" );
+				var values = {};
+				$.each( $( '#add-event' ).serializeArray(), function ( i, field ) {
+					values[ field.name ] = field.value;
+				} );
+				console.log(
+					values
+				);
+			} );
+		} );
+
+		( function () {
+			'use strict';
+			// ------------------------------------------------------- //
+			// Calendar
+			// ------------------------------------------------------ //
+			jQuery( function () {
+				// page is ready
+				jQuery( '#calendar' ).fullCalendar( {
+					themeSystem: 'bootstrap4',
+					// emphasizes business hours
+					businessHours: false,
+					defaultView: 'month',
+					// event dragging & resizing
+					editable: true,
+					eventDrop: function ( info ) {
+						alert( info.event.title + " was dropped on " + info.event.start.toISOString() );
+
+						if ( !confirm( "Are you sure about this change?" ) ) {
+							info.revert();
+						}
+					},
+					// header
+					header: {
+						left: 'title',
+						center: 'month,agendaWeek,agendaDay',
+						right: 'today prev,next'
+					},
+					events: [
+						{
+							title: 'Barber',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-05-05',
+							end: '2020-05-05',
+							className: 'fc-bg-default',
+							icon: "circle"
+						},
+						{
+							title: 'Flight Paris',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-08-08T14:00:00',
+							end: '2020-08-08T20:00:00',
+							className: 'fc-bg-deepskyblue',
+							icon: "cog",
+							allDay: false
+						},
+						{
+							title: 'Team Meeting',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-07-10T13:00:00',
+							end: '2020-07-10T16:00:00',
+							className: 'fc-bg-pinkred',
+							icon: "group",
+							allDay: false
+						},
+						{
+							title: 'Meeting',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-08-12',
+							className: 'fc-bg-lightgreen',
+							icon: "suitcase"
+						},
+						{
+							title: 'Conference',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-08-13',
+							end: '2020-08-15',
+							className: 'fc-bg-blue',
+							icon: "calendar"
+						},
+						{
+							title: 'Baby Shower',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-08-13',
+							end: '2020-08-14',
+							className: 'fc-bg-default',
+							icon: "child"
+						},
+						{
+							title: 'Birthday',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-09-13',
+							end: '2020-09-14',
+							className: 'fc-bg-default',
+							icon: "birthday-cake"
+						},
+						{
+							title: 'Birthday2',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-09-15',
+							end: '2020-09-17',
+							className: 'fc-bg-default',
+							icon: "birthday-cake"
+						},
+						{
+							title: 'Restaurant',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-10-15T09:30:00',
+							end: '2020-10-15T11:45:00',
+							className: 'fc-bg-default',
+							icon: "glass",
+							allDay: false
+						},
+						{
+							title: 'Dinner',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-11-15T20:00:00',
+							end: '2020-11-15T22:30:00',
+							className: 'fc-bg-default',
+							icon: "cutlery",
+							allDay: false
+						},
+						{
+							title: 'Shooting',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-08-25',
+							end: '2020-08-25',
+							className: 'fc-bg-blue',
+							icon: "camera"
+						},
+						{
+							title: 'Go Space :)',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-12-27',
+							end: '2020-12-27',
+							className: 'fc-bg-default',
+							icon: "rocket"
+						},
+						{
+							title: 'Dentist',
+							description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras eu pellentesque nibh. In nisl nulla, convallis ac nulla eget, pellentesque pellentesque magna.',
+							start: '2020-12-29T11:30:00',
+							end: '2020-12-29T012:30:00',
+							className: 'fc-bg-blue',
+							icon: "medkit",
+							allDay: false
+						}, 
+						{% for i in events %}
+						{
+							title: '{{i.name|safe}}',
+							description: '{{i.description|safe}}',
+							start: '{{i.start_date|safe}}',
+							end: '{{i.end_date|safe}}',
+							className: 'fc-bg-blue',
+							icon: "{{i.icon|safe}}",
+							allDay: false,
+							borderColor:'{{i.color|safe}}',
+							backgroundColor: '{{i.color|safe}}',
+						},
+						{% endfor %}
+					],
+					dayClick: function () {
+						jQuery( '#modal-view-event-add' ).modal();
+					},
+					eventClick: function ( event, jsEvent, view ) {
+						jQuery( '.event-icon' ).html( "<i class='fa fa-" + event.icon + "'></i>" );
+						jQuery( '.event-title' ).html( event.title );
+						jQuery( '.event-body' ).html( event.description );
+						jQuery( '.eventUrl' ).attr( 'href', event.url );
+						jQuery( '#modal-view-event' ).modal();
+					},
+				} )
+			} );
+
+		} )( jQuery );
+</script>
+{% endblock %}

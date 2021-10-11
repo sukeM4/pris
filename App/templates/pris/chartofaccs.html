@@ -1,0 +1,244 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}{% load humanize %}{% load mptt_tags %}
+{% block styles %}
+
+{% endblock %}
+{% block main %}
+
+<!-- Simple Datatable start -->
+<div class="card-box mb-30">
+	<div class="clearfix pd-20 pb-0">
+		<div class="pull-left">
+			<h4 class="text-blue h4">Chart of Accounts</h4>
+		</div>
+		<div class="pull-right">
+			<a class="text-primary " data-toggle="modal" data-target="#add">
+				<i class="icon-copy dw dw-add"></i></a>
+			<div id="add" class="modal modal-top fade  ">
+				<div class="modal-dialog modal-lg modal-dialog-centered">
+					<div class="modal-content">
+						<form method="POST" enctype="multipart/form-data">
+							{% csrf_token %}
+							<div class="modal-body">
+								<h4 class="text-blue h4 mb-10">Add Account</h4>
+								<div class="form-group">
+									<div class="d-flex">
+										<div class="custom-control custom-radio mb-5 mr-20">
+											<input type="radio" id="acc" name="type" class="custom-control-input"
+												value="acc" checked>
+											<label class="custom-control-label weight-400" for="acc">Acc</label>
+										</div>
+										<div class="custom-control custom-radio mb-5">
+											<input type="radio" id="total" name="type"
+												class="custom-control-input required" value="total">
+											<label class="custom-control-label weight-400" for="total">Total</label>
+										</div>
+									</div>
+								</div>
+								{{form.as_p}}
+							</div>
+							<div class="modal-footer">
+								<button type="submit" class="btn btn-primary" name="exam">Save</button>
+								<button type="button" class="btn btn-outline-primary"
+									data-dismiss="modal">Close</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="table-responsive">
+		<table class=" table hover nowrap ">
+			<thead>
+				<tr>
+					<th class="table-plus ">Account No. </th>
+					<th class="datatable-nosort">Name</th>
+					<th>Account Type</th>
+					<th>Income/Balance Sheet</th>
+					<th>Totaling</th>
+					<th>Balance</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% recursetree chartofaccs %}
+				{% if not node.is_leaf_node or node.end != None %}
+				<tr>
+					<td>
+						<h6>{{node.start}}</h6>
+					</td>
+					<td>
+						<h6>{{node.name}}</h6>
+					</td>
+					<td>Balance Sheet</td>
+					<td>
+						<h6>Begin-Total</h6>
+					</td>
+					<td></td>
+					<td></td>
+
+				</tr>
+				{% endif %}
+				{{children}}
+				{% if node.is_leaf_node and node.end == None %}
+				<tr>
+					<td>
+						{{node.start}}
+					</td>
+					<td>
+						{{node.name|upper}}
+					</td>
+					<td>Balance Sheet</td>
+					<td>
+						Posting
+					</td>
+					<td></td>
+					<td></td>
+
+				</tr>
+				{% endif %}
+				{% if not node.is_leaf_node or node.end != None %}
+				<tr>
+					<td>
+						<h6>{{node.end}}</h6>
+					</td>
+					<td>
+						<h6>{{node.name}}</h6>
+					</td>
+					<td>Balance Sheet</td>
+					<td>
+						<h6>End-Total</h6>
+					</td>
+					<td></td>
+					<td></td>
+
+				</tr>
+				{% endif %}
+				{% endrecursetree %}
+
+				{% for i in chart_list %}
+				{% with coa_total as  i.0 %}
+				<tr>
+					<td>
+						<h6>{{i.0.start}}</h6>
+					</td>
+					<td>
+						<h6>{{i.0.name}}</h6>
+					</td>
+					<td>Balance Sheet</td>
+					<td>
+						<h6>Begin-Total</h6>
+					</td>
+					<td></td>
+					<td></td>
+
+				</tr>
+
+				{% for z in i.2 %}
+				<tr class="clickable-row" data-href="{% url 'statement' z.0.name %}">
+					<td>{{z.0.acc_no}}</td>
+					<td>{{z.0.name}}</td>
+					<td>Balance Sheet</td>
+					<td>Posting</td>
+					<td></td>
+					<td>
+						{% if z.1 == None %}
+						-
+						{% else %}
+						{{z.1|intcomma}}
+						{% endif %}
+					</td>
+				</tr>
+				{% endfor %}
+				<tr>
+					<td>
+						<h6>{{i.0.end}}</h6>
+					</td>
+
+					<td>
+						<h6>{{i.0.name}}</h6>
+					</td>
+					<td>Balance Sheet</td>
+					<td>
+						<h6>End-Total</h6>
+					</td>
+					<td>
+						<h6>{{i.0.start}} - {{i.0.end}}</h6>
+					</td>
+					<td>{% if i.1 == None %}
+						-
+						{% else %}
+						<h6>{{i.1|intcomma}}</h6>
+						{% endif %}
+					</td>
+				</tr>
+				{% endwith %}
+				{% endfor %}
+			</tbody>
+		</table>
+
+	</div>
+</div>
+{% for message in messages %}
+<!-- success Popup html Start -->
+<div class="modal fade" id="success-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+	aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-body text-center font-18">
+				<h3 class="mb-20">
+					{% if 'error' in message.tags %}Error{% elif 'success' in message.tags%}Success{% endif %}</h3>
+				<div class="mb-30 text-center">{% if 'error' in message.tags %}<img
+						src="{% static 'pris/vendors/images/cross.png' %}">{% elif 'success' in message.tags%}<img
+						src="{% static 'pris/vendors/images/success.png' %}">{% endif %}
+				</div>
+				{{message}}
+			</div>
+			<div class="modal-footer justify-content-center">
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- success Popup html End -->
+{% endfor %}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+<!-- masuke edit for clickable row -->
+<script>
+	jQuery( document ).ready( function ( $ ) {
+		$( ".clickable-row" ).click( function () {
+			window.location = $( this ).data( "href" );
+		} );
+		$( "#id_end" ).parent( 'p' ).hide();
+		$( "#id_start" ).parent( 'p' ).children( 'label' ).html( 'Acc No.' );
+
+		$( '#success-modal' ).modal( 'show' );
+		$( "input[name='type']" ).change( function () {
+			var x = $( this ).val();
+			if ( x == 'acc' ) {
+				$( "#id_end" ).parent( 'p' ).hide();
+				$( "#id_start" ).parent( 'p' ).children( 'label' ).html( 'Acc No.' );
+			} else {
+				$( "#id_end" ).parent( 'p' ).show();
+				$( "#id_start" ).parent( 'p' ).children( 'label' ).html( 'Start:' );
+			}
+
+		} );
+	} );
+</script>
+{% endblock %}

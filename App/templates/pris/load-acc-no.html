@@ -1,0 +1,107 @@
+{% load mptt_tags %}{% load static %}
+<table class="table data-table select-row hover nowrap">
+    {% if acc_type == 'customer' %}
+    <thead>
+        <tr>
+            <th class="datatable-nosort">No.</th>
+            <th class="datatable-nosort">Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for debtors in var %}
+        {% for i in  debtors.children.all %}
+        <tr class="clickable">
+            <td>{{i.start}}</td>
+            <td>{{i.name}}</td>
+        </tr>
+        {% endfor %}
+        {%  endfor %}
+    </tbody>
+    {% elif acc_type == 'bank' %}
+    <thead>
+        <tr>
+            <th class="datatable-nosort">No.</th>
+            <th class="datatable-nosort">Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bank in var %}
+        {% for i in  bank.children.all %}
+        <tr class="clickable">
+            <td>{{i.start}}</td>
+            <td>{{i.name}}</td>
+        </tr>
+        {% endfor %}
+        {%  endfor %}
+    </tbody>
+    {% else %}
+    <thead>
+        <tr>
+            <th class="datatable-nosort">No.</th>
+            <th class="datatable-nosort">Name</th>
+            <th class="datatable-nosort">Income/Balance Sheet</th>
+            <th class="datatable-nosort">Account Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% recursetree var %}
+        {% if not node.is_leaf_node %}
+        <tr class="bg-light">
+            <th>{{node.start}}</th>
+            <th>
+                {{node.name}}
+            </th>
+            <td>Balance Sheet</td>
+            <th>
+                <h6>Begin-Total</h6>
+            </th>
+        </tr>
+        {% endif %}
+        {% if not node.is_leaf_node %}{{children}}{% endif %}
+        {% if node.is_leaf_node %}
+        <tr class="clickable">
+            <td>{{node.start}}</td>
+            <td>{{node.name}}</td>
+            <td>Balance Sheet</td>
+            <td>Posting</td>
+        </tr>
+        {% endif %}
+        {% if not node.is_leaf_node %}
+        <tr class="bg-light">
+            <th>{{node.end}}</th>
+            <th>{{node.name}}</th>
+            <td>Balance Sheet</td>
+            <th>
+                <h6>End-Total</h6>
+            </th>
+        </tr>
+        {% endif %}
+        {%  endrecursetree %}
+    </tbody>
+    {% endif %}
+</table>
+<!-- <script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script> -->
+<!-- Datatable Setting js -->
+<!-- <script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script> -->
+<!-- dependent selector edit -->
+<script>
+    $( document ).ready( function ( $ ) {
+        var drtable = $( 'table' ).DataTable();
+
+        $( 'table tbody ' ).on( 'click', '.clickable', function () {
+            var d = drtable.row( this ).data();
+            d.counter++;
+            // document.getElementById( 'demo2' ).innerHTML = d[ 0 ];
+            $( "input[name='{{input_name}}']" ).val( d[ 0 ] );
+            $( '#acc-modal' ).modal( 'hide' );
+            $( "input[name='{{input_name}}']" ).focus();
+            // setTimeout( function () {
+            //     drtable.$( "tr.selected" ).removeClass( "selected" );
+            // }, 500 );
+
+        } );
+    } );
+</script>

@@ -1,0 +1,90 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}
+{% block main %}
+<div class="mb-30 card-box">
+	<div class="clearfix">
+		<div class="pull-left pd-10">
+			<h5 class="h4 text-blue mb-20 pd-20">Employees</h5>
+		</div>
+
+		<div class="pull-right pd-10">
+			<a href="{% url 'register-employee' %}" class="btn btn-primary btn-sm  m-3">
+				<i class="dw dw-add-user"></i> add employee
+			</a>
+		</div>
+	</div>
+
+	<!-- multiple select row Datatable start -->
+	<table class="data-table stripe table hover  nowrap">
+		<thead>
+			<tr>
+				<th class="table-plus datatable-nosort">Dp</th>
+				<th class="datatable-nosort">ID</th>
+				<th class="datatable-nosort">Name</th>
+				<th class="datatable-nosort">Category</th>
+				<th class="datatable-nosort">Contacts</th>
+				<th class="datatable-nosort">Action</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for employee in employees %}
+			<tr>
+				<td class="table-plus ">
+					<img class="rounded-circle "
+						src="{% if employee.user.photo %} {{employee.user.photo.url}} {% else %} {% static 'pris\vendors\images\avatar.png' %} {% endif %}"
+						width="40" height="40" alt="">
+				</td>
+				<td>{{employee.user.username}} </td>
+				<td class="text-uppercase">{{employee.user.get_fullname}}  </td>
+				<td><span
+						class="badge {% if employee.category == 'Teacher' %} badge-primary {% elif employee.category == 'Cook' %} badge-warning {% elif employee.category == 'Driver' %} badge-success {% endif %}">
+						{{employee.category}}</span>
+						{% if employee.teacher  %}
+					<span
+						class="badge badge-primary">
+						{{employee.teacher}}</span>
+						{% endif %}
+						{% if employee.user.is_it %}<span class="badge badge-info">IT</span>{% endif %}
+				</td>
+				<td>{% if employee.user.contact_set.all %}{% for i in employee.user.contact_set.all %}
+					<i class="icon-copy fa fa-phone" aria-hidden="true"></i>
+					{{i.tel}}&nbsp;&nbsp;
+					{% endfor %}
+					{% else %}None{% endif %}
+				</td>
+				<td><a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" role="button"  href="{% url 'profile' employee.user.username %}" >
+					<i class="dw dw-more"></i>
+				</a></td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+<!-- buttons for Export datatable -->
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.buttons.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.print.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.html5.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/buttons.flash.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/pdfmake.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/vfs_fonts.js' %}"></script>
+<!-- Datatable Setting js -->
+<script src="{% static 'pris/vendors/scripts/datatable-setting.js' %}"></script>
+
+<!-- masuke edit for clickable row -->
+<script>
+	jQuery( document ).ready( function ( $ ) {
+		$( ".clickable-row" ).click( function () {
+			window.location = $( this ).data( "href" );
+		} );
+	} );
+</script>
+{% endblock %}

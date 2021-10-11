@@ -1,0 +1,222 @@
+{% extends 'pris/base.html' %}
+{% load static %}{% load mytags %}
+{% block main %}
+<div class="row ">
+	<div class="col-lg-3 col-md-6 col-sm-6 col-xs-6 mb-30 p-0">
+		<div class="col-auto  mb-4">
+			<div class="card-box pd-30 height-100-p">
+				<a class="text-primary text-right" {% if exam.exam_file %}{% else %}data-toggle="modal"
+					data-target="#edit-exam" {% endif %}>
+					<i class="icon-copy dw dw-eye"></i></a>
+				<div id="edit-exam" class="modal modal-top fade  ">
+					<div class="modal-dialog modal-lg modal-dialog-centered">
+						<div class="modal-content">
+							<form method="POST" enctype="multipart/form-data">
+								{% csrf_token %}
+								<div class="modal-body">
+									<h4 class="text-blue h4 mb-10">Exam File</h4>
+									<div class="form-group">
+										<input class="form-control-file form-control height-auto" type="file"
+											name="myfile">
+									</div>
+								</div>
+								<div class="modal-footer">
+									<button type="submit" class="btn btn-primary" name="exam">Save</button>
+									<button type="button" class="btn btn-outline-primary"
+										data-dismiss="modal">Close</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="progress-box text-center">
+					<h4 class="h4 p-2 border-info">{{exam.exam_group.myclass}}</h4>
+					<h5 class="text-primary padding-top-20 h5 p-2">{{exam.subject}}</h5>
+					<h5 class="h5 p-2">{{exam.exam_group.exam_group_main.exam_type}}</h5>
+					<span class="d-block p-1">{{exam.date|date:'jS F Y'}}</span>
+				</div>
+			</div>
+		</div>
+		<div class="col-sm-auto ">
+			<div class="card-box pd-30 ">
+				<div class="progress-box text-center">
+					<input type="text" class="knob percentage" value="80" data-width="120" data-height="120"
+						data-linecap="round" data-thickness="0.12" data-bgColor="#fff" data-fgColor="#ffc107"
+						data-angleOffset="180" readonly>
+					<h5 class="text-warning padding-top-10 h5">Average</h5>
+					<span class="d-block">{{average}}% Average <i class="fa fa-line-chart text-warning"></i></span>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-lg-9 col-md-12 col-sm-12 mb-30">
+		<div class="card-box pd-30 height-100-p">
+			<h4 class="mb-30 h4">Performance </h4>
+			<div id="chart5" class="chart"></div>
+		</div>
+	</div>
+</div>
+<div class="mb-30 card-box pt-20 pb-20">
+	<div class="pd-20">
+		<h4 class="text-primary h4">Report ({{exam.academicprogress_set.all.count}}
+			pupil{{exam.academicprogress_set.all.count|pluralize}})</h4>
+	</div>
+	<div class="table-responsive">
+		<table class="table hover nowrap">
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Name</th>
+					<th>Marks</th>
+					<th>Grade</th>
+					<th>Remarks</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for report in reports %}
+				<tr>
+					<td>{{forloop.counter}}.</td>
+					<td class="text-uppercase">{{report.pupil.user.get_fullname}}</td>
+					<td><span
+							class=" badge {% if report.marks < 35 %} badge-danger{% elif report.marks < 50 %} badge-warning{% elif report.marks < 65 %} badge-secondary{% elif report.marks < 85 %} badge-success{% else %} badge-primary{% endif %}">{{report.marks}}</span>
+					</td>
+					<td><span
+							class="text-uppercase badge {% if report.marks < 35 %} badge-danger{% elif report.marks < 50 %} badge-warning{% elif report.marks < 65 %} badge-secondary{% elif report.marks < 85 %} badge-success{% else %} badge-primary{% endif %}">
+							{% if report.marks < 35 %} F {% elif report.marks < 50 %} D {% elif report.marks < 65 %} C
+							{% elif report.marks < 85 %} B {% else %} A {% endif %}</span>
+					</td>
+					<td><span
+							class=" badge {% if report.marks < 35 %} badge-danger{% elif report.marks < 50 %} badge-warning{% elif report.marks < 65 %} badge-secondary{% elif report.marks < 85 %} badge-success{% else %} badge-primary{% endif %}">
+							{% if report.marks < 35 %} Fail {% elif report.marks < 50 %} Poor
+							{% elif report.marks < 65 %} Fair {% elif report.marks < 85 %} Very Good {% else %}
+							Excellent {% endif %}</span>
+					</td>
+					<td>
+						<div class="dropdown">
+							<a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#"
+								role="button" data-toggle="dropdown">
+								<i class="dw dw-more"></i>
+							</a>
+							<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+								<a class="dropdown-item" href="#" data-toggle="modal"
+									data-target="#edit-marks-modal-{{report.pk}}" type="button"><i
+										class="dw dw-edit2"></i>
+									Edit</a>
+								<a class="dropdown-item" href="#" data-toggle="modal"
+									data-target="#confirmation-modal-{{report.pk}}" type="button"><i
+										class="dw dw-delete-3"></i> Delete</a>
+							</div>
+					</td>
+				</tr>
+				<div id="edit-marks-modal-{{report.pk}}" class="modal modal-top fade ">
+					<div class="modal-dialog modal-dialog-centered">
+						<div class="modal-content">
+							<form method="POST">
+								{% csrf_token %}
+								<div class="modal-body">
+									<h4 class="text-blue h4 mb-10">Edit Marks </h4>
+									<label>Name:</label>
+									<h5 class="h5">{{report.pupil.user.get_fullname}}</h5>
+									<div class="form-group">
+										<label>Marks</label>
+										<input type="number" class="form-control" name="marks" value="{{report.marks}}"
+											max="100" min="0">
+									</div>
+
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-outline-primary"
+										data-dismiss="modal">Cancel</button>
+									<button type="submit" class="btn btn-primary" value="{{report.pk}}"
+										name="edit">Edit</button>
+
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="confirmation-modal-{{report.pk}}" tabindex="-1" role="dialog"
+					aria-hidden="true">
+					<div class="modal-dialog modal-dialog-centered" role="document">
+						<div class="modal-content">
+							<div class="modal-body text-center font-18">
+								<h4 class="padding-top-30 mb-30 weight-500">Are you sure you want to delete?
+								</h4>
+								<div class="padding-bottom-30 row" style="max-width: 170px; margin: 0 auto;">
+									<div class="col-6">
+										<button type="button"
+											class="btn btn-secondary border-radius-100 btn-block confirmation-btn"
+											data-dismiss="modal"><i class="fa fa-times"></i></button>
+										NO
+									</div>
+									<form action="" method="post">{% csrf_token %}
+										<div class="col-6">
+											<button type="submit" name="delete" value="{{report.pk}}"
+												class="btn btn-primary border-radius-100 btn-block confirmation-btn"><i
+													class="fa fa-check"></i></button>
+											YES
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				{% endfor %}
+
+			</tbody>
+		</table>
+	</div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'pris/src/plugins/jQuery-Knob-master/jquery.knob.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/highcharts-6.0.7/code/highcharts.js' %}"></script>
+<script src="{% static 'pris/src/plugins/highcharts-6.0.7/code/highcharts-more.js' %}"></script>
+
+<script src="{% static 'pris/src/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+<script src="{% static 'pris/src/plugins/datatables/js/responsive.bootstrap4.min.js' %}"></script>
+
+<script>
+	// percentage knob
+	$( ".percentage" ).knob();
+	$( { animatedVal: 0 } ).animate( { animatedVal: {{ average}} }, {
+		duration: 3000,
+		easing: "swing",
+		step: function () {
+			$( ".percentage" ).val( Math.ceil( this.animatedVal ) ).trigger( "change" );
+		}
+	} );
+	// chart 5
+	Highcharts.chart( 'chart5', {
+		title: {
+			text: 'Pie point CSS'
+		},
+		xAxis: {
+			categories: [ 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ]
+		},
+		series: [ {
+			type: 'pie',
+			allowPointSelect: true,
+			keys: [ 'name', 'y', 'selected', 'sliced' ],
+			name: 'Pupils',
+			data: [
+				[ 'A', {{ As.count | safe }}, true, true ],
+		[ 'B', {{ Bs.count | safe }}, false ],
+		[ 'C', {{ Cs.count | safe }}, false ],
+		[ 'D', {{ Ds.count | safe }}, false ],
+		[ 'F', {{ Fs.count | safe }}, false ],
+				// [ 'Prunes', 135.6, true, true ],
+				// [ 'Avocados', 148.5, false ],
+				// [ 'Avocados', 148.5, false ]
+			],
+		showInLegend: true
+		} ]
+	} );
+</script>
+{% endblock %}
